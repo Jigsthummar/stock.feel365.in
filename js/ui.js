@@ -131,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentDeleteProduct = name;
         document.getElementById('deleteProductName').textContent = name;
         document.getElementById('deleteModal').style.display = 'flex';
+        document.getElementById('mainContent').classList.add('modal-open');
       };
 
       row.innerHTML = `
@@ -514,6 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ======================
   document.querySelector('.delete-close')?.addEventListener('click', () => {
     document.getElementById('deleteModal').style.display = 'none';
+document.getElementById('mainContent').classList.remove('modal-open');
   });
 
   document.getElementById('confirmDeleteBtn')?.addEventListener('click', () => {
@@ -526,6 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
       updateDashboard();
     }
     document.getElementById('deleteModal').style.display = 'none';
+document.getElementById('mainContent').classList.remove('modal-open');
   });
 
   document.querySelector('.import-close')?.addEventListener('click', () => {
