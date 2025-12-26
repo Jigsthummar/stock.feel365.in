@@ -464,6 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
       importDataBtn.dataset.attached = 'true';
       importDataBtn.onclick = () => {
         document.getElementById('importModal').style.display = 'flex';
+document.getElementById('mainContent').classList.add('modal-open');
       };
     }
 
@@ -533,6 +534,7 @@ document.getElementById('mainContent').classList.remove('modal-open');
 
   document.querySelector('.import-close')?.addEventListener('click', () => {
     document.getElementById('importModal').style.display = 'none';
+document.getElementById('mainContent').classList.remove('modal-open');
   });
 
   const dateFilter = document.getElementById('dateFilter');
