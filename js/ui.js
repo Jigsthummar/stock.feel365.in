@@ -317,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
         msg += `• ${t.product}\n  → ${sign}${t.qty} | ${t.type}\n`;
       });
     }
-    window.open(`https://wa.me/919825531314?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/919016211040?text=${encodeURIComponent(msg)}`, '_blank');
   }
 
   function whatsappStockReport() {
@@ -331,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
         msg += `• ${name}\n  → ${qty} units [${status}]\n`;
       });
     }
-    window.open(`https://wa.me/919825531314?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/919016211040?text=${encodeURIComponent(msg)}`, '_blank');
   }
 
   function enforcePositiveInput(inputId) {
@@ -467,6 +467,16 @@ document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('mainContent').classList.add('modal-open');
       };
     }
+
+    // Ledger Import button
+const importLedgerBtn = document.getElementById('importLedgerBtn');
+if (importLedgerBtn && !importLedgerBtn.dataset.attached) {
+  importLedgerBtn.dataset.attached = 'true';
+  importLedgerBtn.onclick = () => {
+    document.getElementById('importModal').style.display = 'flex';
+    document.getElementById('mainContent').classList.add('modal-open');
+  };
+}
 
     const importFile = document.getElementById('importFile');
     if (importFile) {
