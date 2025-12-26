@@ -9,40 +9,39 @@ document.addEventListener('DOMContentLoaded', () => {
   // SWIPE GESTURE SETUP
   // ======================
   function setupSwipeGestures() {
-    const mainContent = document.getElementById('mainContent');
+  const mainContent = document.getElementById('mainContent');
 
-    if (typeof Hammer !== 'undefined' && window.innerWidth <= 768) {
-      const mc = new Hammer(mainContent);
-      let startX, currentX;
+  if (typeof Hammer !== 'undefined' && window.innerWidth <= 768) {
+    const mc = new Hammer(mainContent);
+    
+    // Define swipe order for mobile
+    const mobileViewOrder = [
+      'dashboard',
+      'add-stock',
+      'sell',
+      'return',
+      'damage',
+      'ledger',
+      'stock'
+    ];
 
-      mc.on('panstart', (e) => {
-        startX = e.center.x;
-      });
+    mc.on('swipeleft', () => {
+      const current = getCurrentActiveView();
+      const currentIndex = mobileViewOrder.indexOf(current);
+      if (currentIndex !== -1 && currentIndex < mobileViewOrder.length - 1) {
+        switchView(mobileViewOrder[currentIndex + 1]);
+      }
+    });
 
-      mc.on('panmove', (e) => {
-        currentX = e.center.x;
-      });
-
-      mc.on('panend', () => {
-        const deltaX = currentX - startX;
-        if (deltaX > 50) {
-          // Swipe right → Go to previous logical view
-          const activeView = getCurrentActiveView();
-          if (activeView === 'add-stock' || activeView === 'sell') {
-            switchView('dashboard');
-          } else if (activeView !== 'dashboard') {
-            switchView('dashboard');
-          }
-        } else if (deltaX < -50) {
-          // Swipe left → Go to stock or ledger
-          const activeView = getCurrentActiveView();
-          if (activeView === 'dashboard') {
-            switchView('stock');
-          }
-        }
-      });
-    }
+    mc.on('swiperight', () => {
+      const current = getCurrentActiveView();
+      const currentIndex = mobileViewOrder.indexOf(current);
+      if (currentIndex > 0) {
+        switchView(mobileViewOrder[currentIndex - 1]);
+      }
+    });
   }
+}
 
   function getCurrentActiveView() {
     const activeLink = document.querySelector('.nav-link.active, .mobile-nav .nav-btn.active');
