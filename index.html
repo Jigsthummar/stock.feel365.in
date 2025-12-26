@@ -420,7 +420,7 @@
       }
       .main-content {
         padding: 20px 16px;
-        min-height: calc(100vh - 70px);
+        min-height: calc(100vh - 140px);
       }
       .mobile-nav {
         display: block !important;
@@ -452,6 +452,85 @@
   z-index: 2000 !important;
 }
     }
+
+
+    /* ANIMATED FOOTER */
+#appFooter {
+  text-align: center;
+  margin-top: 48px;
+  padding: 24px 16px;
+  color: var(--text-light);
+  font-size: 0.92rem;
+  border-top: 1px solid var(--border);
+  animation: fadeInUp 0.6s ease-out;
+  transition: transform 0.3s;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.credit {
+  opacity: 0.9;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.social-links {
+  display: flex;
+  gap: 20px;
+}
+
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-light);
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.social-links a:hover {
+  transform: translateY(-3px) scale(1.1);
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+}
+
+/* ANIMATIONS */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* MOBILE SPACING FIX */
+@media (max-width: 768px) {
+  #appFooter {
+    padding: 28px 16px;
+    margin-top: 80px; /* Clear space above bottom nav */
+  }
+  
+  .social-links a {
+    width: 46px;
+    height: 46px;
+    font-size: 1.3rem;
+  }
+}
   </style>
 </head>
 <body>
@@ -591,6 +670,7 @@
           <input type="date" id="dateFilter" />
           <button id="filterLedgerBtn" class="action-btn"><i class="fas fa-filter"></i> Filter</button>
           <button id="exportLedgerBtn" class="action-btn"><i class="fas fa-file-export"></i> Export Backup</button>
+          <button id="importLedgerBtn" class="action-btn"><i class="fas fa-file-import"></i> Import Backup</button>
           <button id="whatsappLedgerBtn" class="action-btn"><i class="fab fa-whatsapp"></i> WhatsApp Report</button>
         </div>
         <table>
@@ -620,15 +700,21 @@
       </div>
     </div>
 
-    <footer>
-      <p>Developed By: Jignesh Thummar 2025-26</p>
-      <a href="https://instagram.com/official.jignesh.1" target="_blank">
-        <i class="fab fa-instagram"></i> Instagram
+    <footer id="appFooter">
+  <div class="footer-content">
+    <div class="credit">
+      <span>Developed By: Jignesh Thummar 2025-26</span>
+    </div>
+    <div class="social-links">
+      <a href="https://instagram.com/official.jignesh.1" target="_blank" aria-label="Instagram">
+        <i class="fab fa-instagram"></i>
       </a>
-      <a href="https://wa.me/9198255314" target="_blank">
-        <i class="fab fa-whatsapp"></i> WhatsApp
+      <a href="https://wa.me/919825531314" target="_blank" aria-label="WhatsApp">
+        <i class="fab fa-whatsapp"></i>
       </a>
-    </footer>
+    </div>
+  </div>
+</footer>
   </div>
 
   <!-- MOBILE BOTTOM NAV -->
