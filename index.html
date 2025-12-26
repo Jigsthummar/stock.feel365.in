@@ -8,10 +8,13 @@
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#6366f1" />
 
-  <!-- ApexCharts (Modern, Animated, Free) -->
+  <!-- ApexCharts -->
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  
+  <!-- Hammer.js for swipe gestures -->
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
 
-  <!-- Font & Icons -->
+  <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -49,7 +52,7 @@
       overflow-x: hidden;
     }
 
-    /* SIDEBAR */
+    /* SIDEBAR - DESKTOP ONLY */
     .sidebar {
       width: 260px;
       background: var(--sidebar-bg);
@@ -114,7 +117,51 @@
       flex: 1;
       padding: 32px;
       overflow-y: auto;
+      transition: padding-bottom 0.3s;
     }
+
+    /* MOBILE BOTTOM NAV */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      padding: 8px 0;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+    .mobile-nav-buttons {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 12px;
+    }
+    .mobile-nav .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      color: var(--text-light);
+      background: transparent;
+      border: none;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+      width: 100%;
+      max-width: 80px;
+    }
+    .mobile-nav .nav-btn.active {
+      color: var(--primary);
+      font-weight: bold;
+    }
+    .mobile-nav .nav-btn i {
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+
     header h1 {
       text-align: center;
       font-size: 2.1rem;
@@ -140,7 +187,7 @@
       animation: pulse 2s infinite;
       backdrop-filter: blur(10px);
       border: 1px solid rgba(251, 191, 36, 0.25);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      box-shadow: var(--shadow);
     }
     @keyframes pulse {
       0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4); }
@@ -148,7 +195,6 @@
       100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
     }
 
-    /* METRIC CARDS */
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -203,7 +249,6 @@
       font-weight: 700;
     }
 
-    /* CONTROLS */
     .controls {
       display: flex;
       gap: 20px;
@@ -240,9 +285,8 @@
       color: var(--warning);
     }
 
-    /* BUTTONS */
     .action-btn {
-      padding: 12px 22px;
+      padding: 14px 24px;
       background: var(--primary);
       color: white;
       border: none;
@@ -254,6 +298,8 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      min-height: 48px;
+      font-size: 1rem;
     }
     .action-btn:hover {
       background: var(--primary-dark);
@@ -268,14 +314,12 @@
       transform: translateY(-2px);
     }
 
-    /* TABLE */
     table { width: 100%; border-collapse: collapse; margin-top: 16px; }
     th, td { padding: 16px; text-align: left; border-bottom: 1px solid var(--border); }
     th { color: var(--text-light); font-weight: 600; font-size: 0.95rem; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: rgba(255,255,255,0.03); }
 
-    /* MODALS */
     .modal {
       display: none;
       position: fixed;
@@ -335,7 +379,6 @@
       margin-top: 12px;
     }
 
-    /* FOOTER */
     footer {
       text-align: center;
       margin-top: 48px;
@@ -366,17 +409,43 @@
       text-decoration: underline;
     }
 
+    /* MOBILE OPTIMIZATIONS */
     @media (max-width: 768px) {
-      body { flex-direction: column; }
-      .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
-      .main-content { padding: 20px 16px; }
-      .controls { flex-direction: column; }
-      .dashboard-grid { grid-template-columns: 1fr; }
+      body {
+        flex-direction: column;
+        padding-bottom: 70px;
+      }
+      .sidebar {
+        display: none !important;
+      }
+      .main-content {
+        padding: 20px 16px;
+        min-height: calc(100vh - 70px);
+      }
+      .mobile-nav {
+        display: block !important;
+      }
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      .controls {
+        flex-direction: column;
+        gap: 16px;
+      }
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      th, td {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- SIDEBAR -->
+  <!-- DESKTOP SIDEBAR -->
   <nav class="sidebar">
     <div class="sidebar-header">
       <div class="logo">FEEL365</div>
@@ -393,7 +462,7 @@
   </nav>
 
   <!-- MAIN CONTENT -->
-  <div class="main-content">
+  <div id="mainContent" class="main-content">
     <header><h1>FEEL365 Stock Manager</h1></header>
 
     <div id="backupAlert" class="backup-alert" style="display:none;">
@@ -452,7 +521,6 @@
       </div>
     </div>
 
-    <!-- Other views remain structurally identical (only styles changed via CSS) -->
     <div id="view-add-product" class="view" style="display:none;">
       <div class="section">
         <h2>Add New Product</h2>
@@ -474,7 +542,7 @@
     </div>
 
     <div id="view-sell" class="view" style="display:none;">
-      <div class="-section">
+      <div class="section">
         <h2>Record Sale</h2>
         <label>Select Product</label>
         <select id="sellProduct"></select>
@@ -547,13 +615,31 @@
       <a href="https://instagram.com/official.jignesh.1" target="_blank">
         <i class="fab fa-instagram"></i> Instagram
       </a>
-      <a href="https://wa.me/919825531314" target="_blank">
+      <a href="https://wa.me/9198255314" target="_blank">
         <i class="fab fa-whatsapp"></i> WhatsApp
       </a>
     </footer>
   </div>
 
-  <!-- Keep your core logic -->
+  <!-- MOBILE BOTTOM NAV -->
+  <div class="mobile-nav">
+    <div class="mobile-nav-buttons">
+      <button class="nav-btn active" data-view="dashboard">
+        <i class="fas fa-chart-line"></i><br>Dashboard
+      </button>
+      <button class="nav-btn" data-view="add-product">
+        <i class="fas fa-plus-circle"></i><br>Add
+      </button>
+      <button class="nav-btn" data-view="sell">
+        <i class="fas fa-shopping-cart"></i><br>Sell
+      </button>
+      <button class="nav-btn" data-view="stock">
+        <i class="fas fa-warehouse"></i><br>Stock
+      </button>
+    </div>
+  </div>
+
+  <!-- Core logic -->
   <script src="js/db.js"></script>
   <script src="js/ui.js"></script>
   <script>
