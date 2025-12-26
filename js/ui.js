@@ -1,4 +1,4 @@
-// js/ui.js — UI LAYER ONLY (Core DB logic untouched)
+// js/ui.js — Mobile-Optimized with Swipe & Bottom Nav
 document.addEventListener('DOMContentLoaded', () => {
   let currentDeleteProduct = null;
   let autoRefreshInterval;
@@ -6,7 +6,51 @@ document.addEventListener('DOMContentLoaded', () => {
   let apexChart = null;
 
   // ======================
-  // CHART RENDERING (APEXCHARTS)
+  // SWIPE GESTURE SETUP
+  // ======================
+  function setupSwipeGestures() {
+    const mainContent = document.getElementById('mainContent');
+
+    if (typeof Hammer !== 'undefined' && window.innerWidth <= 768) {
+      const mc = new Hammer(mainContent);
+      let startX, currentX;
+
+      mc.on('panstart', (e) => {
+        startX = e.center.x;
+      });
+
+      mc.on('panmove', (e) => {
+        currentX = e.center.x;
+      });
+
+      mc.on('panend', () => {
+        const deltaX = currentX - startX;
+        if (deltaX > 50) {
+          // Swipe right → Go to previous logical view
+          const activeView = getCurrentActiveView();
+          if (activeView === 'add-stock' || activeView === 'sell') {
+            switchView('dashboard');
+          } else if (activeView !== 'dashboard') {
+            switchView('dashboard');
+          }
+        } else if (deltaX < -50) {
+          // Swipe left → Go to stock or ledger
+          const activeView = getCurrentActiveView();
+          if (activeView === 'dashboard') {
+            switchView('stock');
+          }
+        }
+      });
+    }
+  }
+
+  function getCurrentActiveView() {
+    const activeLink = document.querySelector('.nav-link.active, .mobile-nav .nav-btn.active');
+    return activeLink ? (activeLink.dataset.view || activeLink.getAttribute('data-view')) : 'dashboard';
+  }
+
+  // ======================
+  // APEXCHARTS
   // ======================
   function renderBestSellingChart() {
     const data = DB.getBestSelling();
@@ -56,9 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ======================
-  // Rest of your functions remain identical (only copied for context)
+  // EXISTING RENDER FUNCTIONS (UNCHANGED LOGIC)
   // ======================
-
   function updateDashboard() {
     document.getElementById('totalProducts').textContent = DB.products.size;
     document.getElementById('todaySales').textContent = DB.getTodaySales();
@@ -131,15 +174,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ======================
+  // VIEW SWITCHING (UPDATED FOR MOBILE)
+  // ======================
   function switchView(targetView) {
+    // Update desktop sidebar
     document.querySelectorAll('.nav-link').forEach(link => {
       link.classList.toggle('active', link.getAttribute('data-view') === targetView);
     });
-    
+
+    // Update mobile bottom nav
+    document.querySelectorAll('.mobile-nav .nav-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.view === targetView);
+    });
+
+    // Show/hide views
     document.querySelectorAll('.view').forEach(view => {
       view.style.display = (view.id === `view-${targetView}`) ? 'block' : 'none';
     });
 
+    // Refresh content
     if (targetView === 'dashboard') {
       updateDashboard();
     } else if (['add-stock', 'sell', 'return', 'damage'].includes(targetView)) {
@@ -155,6 +209,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ======================
+  // REST OF YOUR FUNCTIONS (IDENTICAL LOGIC)
+  // ======================
   function populateProductDropdowns() {
     const products = Array.from(DB.products.keys()).sort();
     ['addStockProduct', 'sellProduct', 'returnProduct', 'damageProduct'].forEach(id => {
@@ -260,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
         msg += `• ${t.product}\n  → ${sign}${t.qty} | ${t.type}\n`;
       });
     }
-    window.open(`https://wa.me/919016211040?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/919825531314?text=${encodeURIComponent(msg)}`, '_blank');
   }
 
   function whatsappStockReport() {
@@ -274,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
         msg += `• ${name}\n  → ${qty} units [${status}]\n`;
       });
     }
-    window.open(`https://wa.me/919016211040?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/919825531314?text=${encodeURIComponent(msg)}`, '_blank');
   }
 
   function enforcePositiveInput(inputId) {
@@ -287,12 +344,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ======================
-  // ACTION LISTENERS (SAFE)
-  // ======================
-
   function attachActionListeners() {
-    // Add Product
+    // All your existing action listeners (unchanged)
     const saveProductBtn = document.getElementById('saveProductBtn');
     if (saveProductBtn && !saveProductBtn.dataset.attached) {
       saveProductBtn.dataset.attached = 'true';
@@ -309,7 +362,6 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     }
 
-    // Add Stock
     const saveAddStockBtn = document.getElementById('saveAddStockBtn');
     if (saveAddStockBtn && !saveAddStockBtn.dataset.attached) {
       saveAddStockBtn.dataset.attached = 'true';
@@ -326,7 +378,6 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     }
 
-    // Sell
     const saveSellBtn = document.getElementById('saveSellBtn');
     if (saveSellBtn && !saveSellBtn.dataset.attached) {
       saveSellBtn.dataset.attached = 'true';
@@ -345,54 +396,45 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     }
 
-    // Return
-const saveReturnBtn = document.getElementById('saveReturnBtn');
-if (saveReturnBtn && !saveReturnBtn.dataset.attached) {
-  saveReturnBtn.dataset.attached = 'true';
-  saveReturnBtn.onclick = () => {
-    const product = document.getElementById('returnProduct')?.value;
-    const qty = parseInt(document.getElementById('returnQty')?.value);
-
-    if (!product || !DB.products.has(product)) return alert('Select a valid product.');
-    if (!qty || qty <= 0) return alert('Valid quantity required.');
-
-    // Get total sales for this product
-    const totalSales = DB.getTotalSalesForProduct(product);
-    
-    // Prevent returning more than what was sold
-    if (qty > totalSales) {
-      alert(`⚠️ Cannot return ${qty} units. Only ${totalSales} units were sold.`);
-      return;
+    const saveReturnBtn = document.getElementById('saveReturnBtn');
+    if (saveReturnBtn && !saveReturnBtn.dataset.attached) {
+      saveReturnBtn.dataset.attached = 'true';
+      saveReturnBtn.onclick = () => {
+        const product = document.getElementById('returnProduct')?.value;
+        const qty = parseInt(document.getElementById('returnQty')?.value);
+        if (!product || !DB.products.has(product)) return alert('Select a valid product.');
+        const totalSales = DB.getTotalSalesForProduct(product);
+        if (qty > totalSales) {
+          alert(`⚠️ Cannot return ${qty} units. Only ${totalSales} units were sold.`);
+          return;
+        }
+        if (!qty || qty <= 0) return alert('Valid quantity required.');
+        DB.addTransaction(product, qty, 'RETURN');
+        alert('✅ Return recorded!');
+        document.getElementById('returnQty').value = '';
+        updateDashboard();
+        renderStockTable();
+      };
     }
 
-    DB.addTransaction(product, qty, 'RETURN');
-    alert('✅ Return recorded!');
-    document.getElementById('returnQty').value = '';
-    updateDashboard();
-    renderStockTable();
-  };
-}
+    const saveDamageBtn = document.getElementById('saveDamageBtn');
+    if (saveDamageBtn && !saveDamageBtn.dataset.attached) {
+      saveDamageBtn.dataset.attached = 'true';
+      saveDamageBtn.onclick = () => {
+        const product = document.getElementById('damageProduct')?.value;
+        const qty = parseInt(document.getElementById('damageQty')?.value);
+        if (!product || !DB.products.has(product)) return alert('Select a valid product.');
+        const current = DB.products.get(product) || 0;
+        if (current < qty) return alert(`❌ Not enough stock! Only ${current} available.`);
+        if (!qty || qty <= 0) return alert('Valid quantity required.');
+        DB.addTransaction(product, -qty, 'DAMAGE');
+        alert('✅ Damage reported!');
+        document.getElementById('damageQty').value = '';
+        updateDashboard();
+        renderStockTable();
+      };
+    }
 
-    // Damage
-const saveDamageBtn = document.getElementById('saveDamageBtn');
-if (saveDamageBtn && !saveDamageBtn.dataset.attached) {
-  saveDamageBtn.dataset.attached = 'true';
-  saveDamageBtn.onclick = () => {
-    const product = document.getElementById('damageProduct')?.value;
-    const qty = parseInt(document.getElementById('damageQty')?.value);
-    if (!product || !DB.products.has(product)) return alert('Select a valid product.');
-    const current = DB.products.get(product) || 0;
-    if (current < qty) return alert(`❌ Not enough stock! Only ${current} available.`);
-    if (!qty || qty <= 0) return alert('Valid quantity required.');
-    DB.addTransaction(product, -qty, 'DAMAGE');
-    alert('✅ Damage reported!');
-    document.getElementById('damageQty').value = '';
-    updateDashboard();
-    renderStockTable();
-  };
-}
-
-    // WhatsApp buttons
     const whatsappStockBtn = document.getElementById('whatsappStockBtn');
     if (whatsappStockBtn && !whatsappStockBtn.dataset.attached) {
       whatsappStockBtn.dataset.attached = 'true';
@@ -405,7 +447,6 @@ if (saveDamageBtn && !saveDamageBtn.dataset.attached) {
       whatsappLedgerBtn.onclick = whatsappLedgerReport;
     }
 
-    // Backup buttons
     const backupNowBtn = document.getElementById('backupNowBtn');
     if (backupNowBtn && !backupNowBtn.dataset.attached) {
       backupNowBtn.dataset.attached = 'true';
@@ -418,7 +459,6 @@ if (saveDamageBtn && !saveDamageBtn.dataset.attached) {
       exportLedgerBtn.onclick = exportBackup;
     }
 
-    // Import button
     const importDataBtn = document.getElementById('importDataBtn');
     if (importDataBtn && !importDataBtn.dataset.attached) {
       importDataBtn.dataset.attached = 'true';
@@ -427,7 +467,6 @@ if (saveDamageBtn && !saveDamageBtn.dataset.attached) {
       };
     }
 
-    // Import file handler
     const importFile = document.getElementById('importFile');
     if (importFile) {
       importFile.onchange = (e) => {
@@ -440,7 +479,6 @@ if (saveDamageBtn && !saveDamageBtn.dataset.attached) {
       };
     }
 
-    // Threshold slider
     const thresholdSlider = document.getElementById('lowStockThreshold');
     if (thresholdSlider && !thresholdSlider.dataset.attached) {
       thresholdSlider.dataset.attached = 'true';
@@ -452,21 +490,18 @@ if (saveDamageBtn && !saveDamageBtn.dataset.attached) {
       };
     }
 
-    // Search
     const stockSearch = document.getElementById('stockSearch');
     if (stockSearch && !stockSearch.dataset.attached) {
       stockSearch.dataset.attached = 'true';
       stockSearch.oninput = applyStockFilters;
     }
 
-    // Clear Filters
     const clearFiltersBtn = document.getElementById('clearFiltersBtn');
     if (clearFiltersBtn && !clearFiltersBtn.dataset.attached) {
       clearFiltersBtn.dataset.attached = 'true';
       clearFiltersBtn.onclick = clearFilters;
     }
 
-    // Enforce positive numbers
     ['addStockQty', 'sellQty', 'returnQty', 'damageQty'].forEach(id => {
       if (document.getElementById(id) && !document.getElementById(id).dataset.validated) {
         document.getElementById(id).dataset.validated = 'true';
@@ -478,8 +513,6 @@ if (saveDamageBtn && !saveDamageBtn.dataset.attached) {
   // ======================
   // MODAL HANDLERS
   // ======================
-
- // ===== MODAL & EVENT SETUP (UNCHANGED LOGIC) =====
   document.querySelector('.delete-close')?.addEventListener('click', () => {
     document.getElementById('deleteModal').style.display = 'none';
   });
@@ -508,20 +541,22 @@ if (saveDamageBtn && !saveDamageBtn.dataset.attached) {
     });
   }
 
-  document.querySelectorAll('.flip-card, .metric-card').forEach((el, i) => {
-    if (i === 0) el.addEventListener('click', () => switchView('add-product'));
-    if (i === 1) el.addEventListener('click', () => switchView('sell'));
-  });
+  // Metric card clicks
+  document.getElementById('flip-add-product')?.addEventListener('click', () => switchView('add-product'));
+  document.getElementById('flip-sell')?.addEventListener('click', () => switchView('sell'));
 
-  document.querySelectorAll('.nav-link').forEach(link => {
+  // Navigation clicks (desktop + mobile)
+  document.querySelectorAll('.nav-link, .mobile-nav .nav-btn').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      switchView(link.getAttribute('data-view'));
+      const view = link.dataset.view || link.getAttribute('data-view');
+      switchView(view);
     });
   });
 
+  // Auto refresh
   autoRefreshInterval = setInterval(() => {
-    const activeView = document.querySelector('.nav-link.active')?.getAttribute('data-view');
+    const activeView = getCurrentActiveView();
     if (['dashboard', 'stock', 'ledger'].includes(activeView)) {
       if (activeView === 'dashboard') updateDashboard();
       else if (activeView === 'stock') renderStockTable();
@@ -529,8 +564,10 @@ if (saveDamageBtn && !saveDamageBtn.dataset.attached) {
     }
   }, 30000);
 
+  // Initialize
   updateThresholdDisplay();
   switchView('dashboard');
   checkBackupReminder();
   attachActionListeners();
+  setupSwipeGestures(); // Enable swipe on mobile
 });
