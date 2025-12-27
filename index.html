@@ -203,6 +203,43 @@
       transform: translateY(-2px);
     }
 
+    /* Dashboard Stat Cards */
+.stat-card {
+  transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.stat-card:active {
+  box-shadow: 0 0 0 2px var(--primary), 0 12px 30px var(--primary-glow);
+  transform: translateY(-2px) scale(0.99);
+}
+
+/* Stock Items */
+.stock-item {
+  transition: all 0.2s ease;
+}
+.stock-item:active {
+  box-shadow: 0 0 0 2px var(--primary), 0 8px 20px rgba(139, 92, 246, 0.3);
+  background: var(--surface-bright) !important;
+}
+
+.view {
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.3s, transform 0.3s;
+  position: absolute;
+  width: 100%;
+}
+.view.active {
+  opacity: 1;
+  transform: translateX(0);
+  position: relative;
+}
+
+@keyframes lowStockPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+}
+.pulsing { animation: lowStockPulse 2s ease-in-out; }
+
     /* BOTTOM NAV */
     .bottom-nav {
       position: fixed;
@@ -246,11 +283,15 @@
     .fab-sale i { transform: rotate(-45deg); }
 
 
-    .app-credit {
+.app-credit {
   text-align: center;
-  padding: 24px 20px;
-  margin-bottom: 100px;
-  background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.05));
+  padding: 12px 20px 24px;
+  background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.03));
+  /* Position below bottom nav */
+  margin: 0;
+  padding-top: 70px; /* = height of bottom-nav */
+  position: relative;
+  z-index: 999;
 }
 
 .credit-content {
@@ -331,8 +372,10 @@
       font-size: 0.85rem;
     }
 
-    #view-container { padding-bottom: 120px; }
-    .hidden { display: none; }
+    #view-container {
+  padding-bottom: 140px; /* Was 120px — now accounts for footer + nav */
+  min-height: calc(100dvh - 120px); /* Ensures content fills screen */
+}
 
     /* RANGE SLIDER */
     input[type="range"] { height: 6px; background: var(--surface-bright); }
