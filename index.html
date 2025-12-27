@@ -282,13 +282,14 @@
 
 .app-credit {
   text-align: center;
-  padding: 12px 20px 24px;
+  padding: 12px 20px 32px; /* Increased bottom padding */
   background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.03));
-  /* Position below bottom nav */
   margin: 0;
-  padding-top: 70px; /* = height of bottom-nav */
   position: relative;
   z-index: 999;
+  opacity: 0;
+  animation: fadeIn 1.2s ease-out forwards;
+  /* Remove padding-top that pushes content up */
 }
 
 .credit-content {
@@ -329,9 +330,7 @@
   animation: fadeIn 1.2s ease-out forwards;
 }
 
-@keyframes fadeIn {
-  to { opacity: 1; }
-}
+
 
     /* MODALS */
     .modal {
@@ -572,7 +571,7 @@
     </div>
   </div>
 
-  <footer class="app-credit">
+ <footer class="app-credit">
   <div class="credit-content">
     <span class="credit-text">Crafted with ❤️ by</span>
     <span class="credit-name">Jignesh Thummar</span>
