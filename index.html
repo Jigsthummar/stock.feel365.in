@@ -337,6 +337,59 @@
       transform: translateY(-3px);
     }
 
+  /* Ensure no content is hidden on small screens */
+@media (max-height: 600px) {
+  .main-content {
+    margin-bottom: 140px; /* Extra space for tiny screens */
+  }
+}
+
+    /* FIXED FOOTER ABOVE BOTTOM NAV */
+.fixed-footer {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.85rem;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  z-index: 998;
+}
+
+.fixed-footer .brand-credit {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.fixed-footer .social-links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.fixed-footer .social-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-light);
+  transition: all 0.25s;
+}
+
+.fixed-footer .social-links a:hover {
+  background: var(--primary);
+  color: white;
+  transform: scale(1.1);
+}
+
+/* CONTENT PADDING TO MAKE ROOM FOR FOOTER + NAV */
+.main-content {
+  padding: 20px 16px;
+  margin-bottom: 120px; /* = footer (60px) + nav (60px) */
+}
+
     /* FAB */
     .fab {
       position: fixed;
@@ -387,7 +440,7 @@
     </div>
   </div>
 
-  <!-- MAIN CONTENT -->
+  <!-- MAIN SCROLLABLE CONTENT -->
   <main class="main-content">
     <!-- DASHBOARD -->
     <div id="view-dashboard" class="view fade-in">
@@ -413,8 +466,10 @@
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
           <h2 style="font-size:1.3rem;">Product Stock</h2>
-          <button id="whatsappStockBtn" class="btn btn-success"><i class="fab fa-whatsapp"></i></button>
-        </div>
+          <button id="whatsappStockBtn" class="btn btn-success">
+            <i class="fab fa-whatsapp"></i>
+        </button>
+      </div>
 
         <div class="controls">
           <div class="search-box">
@@ -515,42 +570,24 @@
       </div>
     </div>
 
-    <!-- MODALS -->
-    <div id="importModal" class="modal">
-      <div class="modal-content">
-        <span class="close import-close">&times;</span>
-        <h3 style="margin-bottom:16px;"><i class="fas fa-file-import"></i> Import Backup</h3>
-        <p>Select a JSON backup file to restore your inventory.</p>
-        <input type="file" id="importFile" accept=".json" style="margin:16px 0;" />
-        <button id="confirmImportBtn" class="btn btn-primary" style="width:100%;">Restore Data</button>
-      </div>
-    </div>
-
-    <div id="deleteModal" class="modal">
-      <div class="modal-content">
-        <span class="close delete-close">&times;</span>
-        <h3 style="margin-bottom:16px;"><i class="fas fa-trash"></i> Delete Product</h3>
-        <p>Are you sure you want to delete <strong id="deleteProductName"></strong>?</p>
-        <button id="confirmDeleteBtn" class="btn btn-danger" style="width:100%;">Yes, Delete</button>
-      </div>
-    </div>
-
+   
     <!-- FLOATING ACTION BUTTON -->
     <a href="#" id="fabAdd" class="fab" style="display:none;">
       <i class="fas fa-plus"></i>
     </a>
 
-    <!-- FOOTER -->
-<footer class="app-footer">
-  <div class="brand-credit">Developed By: Jignesh Thummar 2025-26</div>
-  <div class="social-links">
-    <a href="https://instagram.com/official.jignesh.1" target="_blank" aria-label="Instagram">
-      <i class="fab fa-instagram"></i>
-    </a>
-    <!-- WhatsApp removed from footer -->
-  </div>
-</footer>
   </main>
+
+   <!-- DEDICATED FOOTER (above bottom nav) -->
+  <div class="fixed-footer">
+    <div class="brand-credit">Developed By: Jignesh Thummar 2025-26</div>
+    <div class="social-links">
+      <a href="https://instagram.com/official.jignesh.1" target="_blank" aria-label="Instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <!-- WhatsApp REMOVED from footer -->
+    </div>
+  </div>
 
   <!-- BOTTOM NAVIGATION -->
 <nav class="bottom-nav">
@@ -579,6 +616,27 @@
     <span>Ledger</span>
   </a>
 </nav>
+
+ <!-- MODALS -->
+    <div id="importModal" class="modal">
+      <div class="modal-content">
+        <span class="close import-close">&times;</span>
+        <h3 style="margin-bottom:16px;"><i class="fas fa-file-import"></i> Import Backup</h3>
+        <p>Select a JSON backup file to restore your inventory.</p>
+        <input type="file" id="importFile" accept=".json" style="margin:16px 0;" />
+        <button id="confirmImportBtn" class="btn btn-primary" style="width:100%;">Restore Data</button>
+      </div>
+    </div>
+
+    <div id="deleteModal" class="modal">
+      <div class="modal-content">
+        <span class="close delete-close">&times;</span>
+        <h3 style="margin-bottom:16px;"><i class="fas fa-trash"></i> Delete Product</h3>
+        <p>Are you sure you want to delete <strong id="deleteProductName"></strong>?</p>
+        <button id="confirmDeleteBtn" class="btn btn-danger" style="width:100%;">Yes, Delete</button>
+      </div>
+    </div>
+
 
   <!-- Core logic -->
   <script src="js/db.js"></script>
