@@ -9,24 +9,37 @@ document.addEventListener('DOMContentLoaded', () => {
   // SWIPE NAVIGATION
   // ======================
   function setupSwipeGestures() {
-    const mainContent = document.querySelector('.main-content');
-    if (typeof Hammer === 'undefined' || window.innerWidth > 768) return;
+  const mainContent = document.querySelector('.main-content');
+  if (typeof Hammer === 'undefined' || window.innerWidth > 768) return;
 
-    const mc = new Hammer(mainContent);
-    const views = ['dashboard', 'add-stock', 'sell', 'return', 'damage', 'ledger', 'stock'];
-    
-    mc.on('swipeleft', () => {
-      const current = getCurrentActiveView();
-      const idx = views.indexOf(current);
-      if (idx !== -1 && idx < views.length - 1) switchView(views[idx + 1]);
-    });
-    
-    mc.on('swiperight', () => {
-      const current = getCurrentActiveView();
-      const idx = views.indexOf(current);
-      if (idx > 0) switchView(views[idx - 1]);
-    });
-  }
+  const mc = new Hammer(mainContent);
+  
+  // Full view order for swipe
+  const viewOrder = [
+    'dashboard',
+    'stock',
+    'add-stock',
+    'return',
+    'damage',
+    'ledger'
+  ];
+
+  mc.on('swipeleft', () => {
+    const current = getCurrentActiveView();
+    const idx = viewOrder.indexOf(current);
+    if (idx !== -1 && idx < viewOrder.length - 1) {
+      switchView(viewOrder[idx + 1]);
+    }
+  });
+
+  mc.on('swiperight', () => {
+    const current = getCurrentActiveView();
+    const idx = viewOrder.indexOf(current);
+    if (idx > 0) {
+      switchView(viewOrder[idx - 1]);
+    }
+  });
+}
 
   function getCurrentActiveView() {
     return document.querySelector('.nav-item.active')?.dataset.view || 'dashboard';
@@ -154,33 +167,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // VIEW MANAGEMENT
   // ======================
   function switchView(targetView) {
-    // Update nav
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.classList.toggle('active', item.dataset.view === targetView);
-    });
+  // Update nav items
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.view === targetView);
+  });
 
-    // Show view
-    document.querySelectorAll('.view').forEach(view => {
-      view.style.display = (view.id === `view-${targetView}`) ? 'block' : 'none';
-    });
+  // Show view
+  document.querySelectorAll('.view').forEach(view => {
+    view.style.display = (view.id === `view-${targetView}`) ? 'block' : 'none';
+  });
 
-    // FAB logic
-    const fab = document.getElementById('fabAdd');
-    if (targetView === 'add-product') {
-      fab.style.display = 'none';
-    } else {
-      fab.style.display = 'flex';
-      fab.onclick = () => switchView('add-product');
-    }
+  // Hide FAB on all views (since Add/Sell are removed from nav)
+  document.getElementById('fabAdd').style.display = 'none';
 
-    // Refresh
-    if (targetView === 'dashboard') updateDashboard();
-    else if (['add-stock', 'sell', 'return', 'damage'].includes(targetView)) {
-      populateProductDropdowns();
-    } else if (targetView === 'ledger') renderLedger();
-    else if (targetView === 'stock') renderStockTable();
+  // Refresh content
+  if (targetView === 'dashboard') updateDashboard();
+  else if (['add-stock', 'return', 'damage'].includes(targetView)) {
+    populateProductDropdowns();
+    attachActionListeners();
   }
-
+  else if (targetView === 'ledger') renderLedger();
+  else if (targetView === 'stock') renderStockTable();
+  else if (targetView === 'add-product') {
+    // This view is still accessible via "Add Stock" form if needed
+    attachActionListeners();
+  }
+}
   // ======================
   // MODAL HANDLING
   // ======================
