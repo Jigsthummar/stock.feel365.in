@@ -1,4 +1,4 @@
-// js/ui.js — Mobile-First, Gesture-Enabled, Core Logic Preserved
+// js/ui.js — Fully Fixed for Mobile
 document.addEventListener('DOMContentLoaded', () => {
   let currentDeleteProduct = null;
   let autoRefreshInterval;
@@ -6,40 +6,31 @@ document.addEventListener('DOMContentLoaded', () => {
   let apexChart = null;
 
   // ======================
-  // SWIPE NAVIGATION
+  // SWIPE NAVIGATION (FULL CYCLE)
   // ======================
   function setupSwipeGestures() {
-  const mainContent = document.querySelector('.main-content');
-  if (typeof Hammer === 'undefined' || window.innerWidth > 768) return;
+    const mainContent = document.querySelector('.main-content');
+    if (typeof Hammer === 'undefined' || window.innerWidth > 768) return;
 
-  const mc = new Hammer(mainContent);
-  
-  // Full view order for swipe
-  const viewOrder = [
-    'dashboard',
-    'stock',
-    'add-stock',
-    'return',
-    'damage',
-    'ledger'
-  ];
-
-  mc.on('swipeleft', () => {
-    const current = getCurrentActiveView();
-    const idx = viewOrder.indexOf(current);
-    if (idx !== -1 && idx < viewOrder.length - 1) {
-      switchView(viewOrder[idx + 1]);
-    }
-  });
-
-  mc.on('swiperight', () => {
-    const current = getCurrentActiveView();
-    const idx = viewOrder.indexOf(current);
-    if (idx > 0) {
-      switchView(viewOrder[idx - 1]);
-    }
-  });
-}
+    const mc = new Hammer(mainContent);
+    const viewOrder = ['dashboard', 'stock', 'add-stock', 'return', 'damage', 'ledger'];
+    
+    mc.on('swipeleft', () => {
+      const current = getCurrentActiveView();
+      const idx = viewOrder.indexOf(current);
+      if (idx !== -1 && idx < viewOrder.length - 1) {
+        switchView(viewOrder[idx + 1]);
+      }
+    });
+    
+    mc.on('swiperight', () => {
+      const current = getCurrentActiveView();
+      const idx = viewOrder.indexOf(current);
+      if (idx > 0) {
+        switchView(viewOrder[idx - 1]);
+      }
+    });
+  }
 
   function getCurrentActiveView() {
     return document.querySelector('.nav-item.active')?.dataset.view || 'dashboard';
@@ -49,45 +40,56 @@ document.addEventListener('DOMContentLoaded', () => {
   // APEXCHARTS
   // ======================
   function renderBestSellingChart() {
-    const data = DB.getBestSelling();
-    const el = document.getElementById('bestSellingChart');
-    if (apexChart) apexChart.destroy(); 
+  const data = DB.getBestSelling();
+  const el = document.getElementById('bestSellingChart');
+  if (apexChart) apexChart.destroy();
 
-    if (data.length === 0) {
-      el.innerHTML = '<p style="color:#a1a1aa;text-align:center;padding:20px;">No sales yet</p>';
-      return;
-    }
-
-    const options = {
-      chart: { type: 'bar', height: 200, animations: { enabled: true } },
-      series: [{ name: 'Units', data: data.map(d => d[1]) }],
-      xaxis: {
-        categories: data.map(d => d[0].length > 15 ? d[0].substring(0,12)+'...' : d[0]),
-        labels: { style: { colors: '#a1a1aa', fontSize: '11px' } }
-      },
-      yaxis: { min: 0, labels: { style: { colors: '#a1a1aa' } } },
-      plotOptions: {
-        bar: {
-          borderRadius: 6,
-          columnWidth: '60%',
-          dataLabels: { position: 'top' }
-        }
-      },
-      dataLabels: { enabled: true, style: { colors: ['#f5f3ff'] } },
-      colors: ['#a855f7'],
-      grid: { borderColor: '#27272a', strokeDashArray: 3 },
-      tooltip: {
-        theme: 'dark',
-        y: { formatter: val => `${val} units` }
-      }
-    };
-
-    apexChart = new ApexCharts(el, options);
-    apexChart.render();
+  if (data.length === 0) {
+    el.innerHTML = '<p style="color:#a1a1aa;text-align:center;padding:20px;">No sales yet</p>';
+    return;
   }
 
+  const options = {
+    chart: { type: 'bar', height: 200, animations: { enabled: true } },
+    series: [{ 
+  name: 'Units', 
+  data: data.map(d => d[1]) 
+}],
+    xaxis: {
+      categories: data.map(d => d[0].length > 15 ? d[0].substring(0,12)+'...' : d[0]),
+      labels: { style: { colors: '#a1a1aa', fontSize: '11px' } }
+    },
+    yaxis: { 
+      min: 0, 
+      labels: { style: { colors: '#a1a1aa' } } 
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 6,
+        columnWidth: '60%',
+        dataLabels: { position: 'top' }
+      }
+    },
+    dataLabels: { 
+      enabled: true, 
+      style: { colors: ['#f5f3ff'] } 
+    },
+    colors: ['#a855f7'],
+    grid: { 
+      borderColor: '#27272a', 
+      strokeDashArray: 3 
+    },
+    tooltip: {
+      theme: 'dark',
+      y: { formatter: val => `${val} units` }
+    }
+  };
+
+  apexChart = new ApexCharts(el, options);
+  apexChart.render();
+}
   // ======================
-  // CORE RENDER FUNCTIONS (UNCHANGED LOGIC)
+  // CORE RENDER FUNCTIONS
   // ======================
   function updateDashboard() {
     document.getElementById('totalProducts').textContent = DB.products.size;
@@ -120,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
       deleteBtn.onclick = () => {
         currentDeleteProduct = name;
         document.getElementById('deleteProductName').textContent = name;
-        showModal('deleteModal');
+        document.getElementById('deleteModal').style.display = 'flex';
       };
 
       row.innerHTML = `
@@ -167,43 +169,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // VIEW MANAGEMENT
   // ======================
   function switchView(targetView) {
-  // Update nav items
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.classList.toggle('active', item.dataset.view === targetView);
-  });
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.view === targetView);
+    });
 
-  // Show view
-  document.querySelectorAll('.view').forEach(view => {
-    view.style.display = (view.id === `view-${targetView}`) ? 'block' : 'none';
-  });
+    document.querySelectorAll('.view').forEach(view => {
+      view.style.display = (view.id === `view-${targetView}`) ? 'block' : 'none';
+    });
 
-  // Hide FAB on all views (since Add/Sell are removed from nav)
-  document.getElementById('fabAdd').style.display = 'none';
-
-  // Refresh content
-  if (targetView === 'dashboard') updateDashboard();
-  else if (['add-stock', 'return', 'damage'].includes(targetView)) {
-    populateProductDropdowns();
-    attachActionListeners();
-  }
-  else if (targetView === 'ledger') renderLedger();
-  else if (targetView === 'stock') renderStockTable();
-  else if (targetView === 'add-product') {
-    // This view is still accessible via "Add Stock" form if needed
-    attachActionListeners();
-  }
-}
-  // ======================
-  // MODAL HANDLING
-  // ======================
-  function showModal(modalId) {
-    document.getElementById(modalId).style.display = 'flex';
-    document.body.style.paddingBottom = '120px';
-  }
-
-  function hideModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-    document.body.style.paddingBottom = '80px';
+    if (targetView === 'dashboard') updateDashboard();
+    else if (['add-stock', 'sell', 'return', 'damage'].includes(targetView)) {
+      populateProductDropdowns();
+    } else if (targetView === 'ledger') renderLedger();
+    else if (targetView === 'stock') renderStockTable();
+    else if (targetView === 'add-product') {
+      // accessible if needed
+    }
   }
 
   // ======================
@@ -250,10 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ACTION HANDLERS
   // ======================
   function attachActionListeners() {
-    // Core actions (add, sell, return, etc.) — same logic as before
-    // ... [Your existing action handlers remain unchanged] ...
-
-    // Example: Add Product
+    // Add Product
     document.getElementById('saveProductBtn')?.addEventListener('click', () => {
       const name = document.getElementById('newProductName')?.value.trim();
       if (!name) return alert('Product name required.');
@@ -264,17 +242,81 @@ document.addEventListener('DOMContentLoaded', () => {
       populateProductDropdowns();
       updateDashboard();
       renderStockTable();
-      switchView('stock');
     });
 
-    // ... [Include all your existing transaction handlers] ...
+    // Add Stock
+    document.getElementById('saveAddStockBtn')?.addEventListener('click', () => {
+      const product = document.getElementById('addStockProduct')?.value;
+      const qty = parseInt(document.getElementById('addStockQty')?.value);
+      if (!product || !DB.products.has(product)) return alert('Select a valid product.');
+      if (!qty || qty <= 0) return alert('Valid quantity required.');
+      DB.addTransaction(product, qty, 'ADD');
+      alert('✅ Stock added!');
+      document.getElementById('addStockQty').value = '';
+      updateDashboard();
+      renderStockTable();
+    });
+
+    // Sell
+    document.getElementById('saveSellBtn')?.addEventListener('click', () => {
+      const product = document.getElementById('sellProduct')?.value;
+      const qty = parseInt(document.getElementById('sellQty')?.value);
+      if (!product || !DB.products.has(product)) return alert('Select a valid product.');
+      const current = DB.products.get(product) || 0;
+      if (current < qty) return alert(`❌ Not enough stock! Only ${current} available.`);
+      if (!qty || qty <= 0) return alert('Valid quantity required.');
+      DB.addTransaction(product, -qty, 'SALE');
+      alert('✅ Sale recorded!');
+      document.getElementById('sellQty').value = '';
+      updateDashboard();
+      renderStockTable();
+    });
+
+    // Return
+    document.getElementById('saveReturnBtn')?.addEventListener('click', () => {
+      const product = document.getElementById('returnProduct')?.value;
+      const qty = parseInt(document.getElementById('returnQty')?.value);
+      if (!product || !DB.products.has(product)) return alert('Select a valid product.');
+      const totalSales = DB.getTotalSalesForProduct(product);
+      if (qty > totalSales) {
+        alert(`⚠️ Cannot return ${qty} units. Only ${totalSales} units were sold.`);
+        return;
+      }
+      if (!qty || qty <= 0) return alert('Valid quantity required.');
+      DB.addTransaction(product, qty, 'RETURN');
+      alert('✅ Return recorded!');
+      document.getElementById('returnQty').value = '';
+      updateDashboard();
+      renderStockTable();
+    });
+
+    // Damage
+    document.getElementById('saveDamageBtn')?.addEventListener('click', () => {
+      const product = document.getElementById('damageProduct')?.value;
+      const qty = parseInt(document.getElementById('damageQty')?.value);
+      if (!product || !DB.products.has(product)) return alert('Select a valid product.');
+      const current = DB.products.get(product) || 0;
+      if (current < qty) return alert(`❌ Not enough stock! Only ${current} available.`);
+      if (!qty || qty <= 0) return alert('Valid quantity required.');
+      DB.addTransaction(product, -qty, 'DAMAGE');
+      alert('✅ Damage reported!');
+      document.getElementById('damageQty').value = '';
+      updateDashboard();
+      renderStockTable();
+    });
+
+    // WhatsApp
+    document.getElementById('whatsappStockBtn')?.addEventListener('click', whatsappStockReport);
+    document.getElementById('whatsappLedgerBtn')?.addEventListener('click', whatsappLedgerReport);
 
     // Backup
     document.getElementById('backupNowBtn')?.addEventListener('click', exportBackup);
     document.getElementById('exportLedgerBtn')?.addEventListener('click', exportBackup);
 
     // Import
-    document.getElementById('importLedgerBtn')?.addEventListener('click', () => showModal('importModal'));
+    document.getElementById('importLedgerBtn')?.addEventListener('click', () => {
+      document.getElementById('importModal').style.display = 'flex';
+    });
     document.getElementById('importFile')?.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file && file.type === 'application/json') {
@@ -299,10 +341,6 @@ document.addEventListener('DOMContentLoaded', () => {
       renderLedger();
     });
 
-    // WhatsApp
-    document.getElementById('whatsappStockBtn')?.addEventListener('click', whatsappStockReport);
-    document.getElementById('whatsappLedgerBtn')?.addEventListener('click', whatsappLedgerReport);
-
     // Threshold
     document.getElementById('lowStockThreshold')?.addEventListener('input', (e) => {
       LOW_STOCK_THRESHOLD = parseInt(e.target.value);
@@ -316,7 +354,43 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ======================
-  // EXISTING FUNCTIONS (exportBackup, importDataFromFile, etc.)
+  // MODAL HANDLERS
+  // ======================
+  document.querySelector('.delete-close')?.addEventListener('click', () => {
+    document.getElementById('deleteModal').style.display = 'none';
+  });
+
+  document.querySelector('.import-close')?.addEventListener('click', () => {
+    document.getElementById('importModal').style.display = 'none';
+  });
+
+  document.getElementById('confirmDeleteBtn')?.addEventListener('click', () => {
+    if (currentDeleteProduct && DB.products.has(currentDeleteProduct)) {
+      DB.products.delete(currentDeleteProduct);
+      DB.save();
+      alert(`✅ Deleted "${currentDeleteProduct}".`);
+      renderStockTable();
+      populateProductDropdowns();
+      updateDashboard();
+    }
+    document.getElementById('deleteModal').style.display = 'none';
+  });
+
+  // ======================
+  // NAVIGATION
+  // ======================
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchView(item.dataset.view);
+    });
+  });
+
+  document.getElementById('flip-add-product')?.addEventListener('click', () => switchView('add-product'));
+  document.getElementById('flip-sell')?.addEventListener('click', () => switchView('sell'));
+
+  // ======================
+  // UTILITIES
   // ======================
   function exportBackup() {
     const data = localStorage.getItem('feel365_data');
@@ -346,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
           alert('✅ Restored!');
           renderStockTable();
           updateDashboard();
-          hideModal('importModal');
+          document.getElementById('importModal').style.display = 'none';
         } else {
           throw new Error('Invalid file');
         }
@@ -399,34 +473,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ======================
   // INIT
   // ======================
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', (e) => {
-      e.preventDefault();
-      switchView(item.dataset.view);
-    });
-  });
-
-  document.querySelectorAll('.close').forEach(btn => {
-    btn.addEventListener('click', () => {
-      hideModal(btn.closest('.modal').id);
-    });
-  });
-
-  document.getElementById('confirmDeleteBtn')?.addEventListener('click', () => {
-    if (currentDeleteProduct && DB.products.has(currentDeleteProduct)) {
-      DB.products.delete(currentDeleteProduct);
-      DB.save();
-      alert(`✅ Deleted "${currentDeleteProduct}".`);
-      renderStockTable();
-      populateProductDropdowns();
-      updateDashboard();
-    }
-    hideModal('deleteModal');
-  });
-
-  document.getElementById('flip-add-product')?.addEventListener('click', () => switchView('add-product'));
-  document.getElementById('flip-sell')?.addEventListener('click', () => switchView('sell'));
-
   updateThresholdDisplay();
   switchView('dashboard');
   checkBackupReminder();
