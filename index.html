@@ -197,6 +197,12 @@
       font-size: 0.9rem;
     }
 
+    .app-header .btn-ghost:hover {
+      background: var(--glass);
+      border-color: var(--glass-border);
+      transform: translateY(-2px);
+    }
+
     /* BOTTOM NAV */
     .bottom-nav {
       position: fixed;
@@ -238,6 +244,56 @@
       transform: rotate(45deg);
     }
     .fab-sale i { transform: rotate(-45deg); }
+
+
+    .app-credit {
+  text-align: center;
+  padding: 24px 20px;
+  margin-bottom: 100px;
+  background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.05));
+}
+
+.credit-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.credit-text {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+
+.credit-name {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  background: linear-gradient(135deg, #8b5cf6, #d946ef);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
+}
+
+.credit-year {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+/* Subtle animation on load */
+.app-credit {
+  opacity: 0;
+  animation: fadeIn 1.2s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
 
     /* MODALS */
     .modal {
@@ -285,13 +341,17 @@
 <body>
 
   <header class="app-header">
-    <div class="logo">FEEL365</div>
-    <div style="display:flex; gap:12px;">
-      <button id="whatsappStockBtn" class="btn btn-ghost" style="width: 45px; height: 45px; padding:0; border-radius: 12px;">
-        <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.2rem;"></i>
-      </button>
-    </div>
-  </header>
+  <div class="logo">FEEL365</div>
+  <div style="display:flex; gap:12px;">
+    <a href="https://instagram.com/official.jignesh.1" target="_blank" class="btn btn-ghost" 
+       style="width: 45px; height: 45px; padding:0; border-radius: 12px; display:flex; align-items:center; justify-content:center; text-decoration:none;">
+      <i class="fab fa-instagram" style="color: #E1306C; font-size: 1.2rem;"></i>
+    </a>
+    <button id="whatsappStockBtn" class="btn btn-ghost" style="width: 45px; height: 45px; padding:0; border-radius: 12px;">
+      <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.2rem;"></i>
+    </button>
+  </div>
+</header>
 
   <div id="backupAlert" class="backup-alert hidden">
     <span>⚠️ Backup is overdue</span>
@@ -331,10 +391,15 @@
         <div class="input-group">
           <input type="text" id="stockSearch" placeholder="Search by name..." />
         </div>
-        <div class="input-group">
-          <label>Low Stock Warning: <span id="thresholdValue" style="color: var(--warning);">5</span></label>
-          <input type="range" id="lowStockThreshold" min="1" max="50" value="5" />
-        </div>
+        <div class="input-group" style="display:flex; justify-content:space-between; align-items:end; gap:10px;">
+  <div style="flex:1;">
+    <label>Low Stock Warning: <span id="thresholdValue" style="color: var(--warning);">5</span></label>
+    <input type="range" id="lowStockThreshold" min="1" max="50" value="5" style="width:100%;" />
+  </div>
+  <button id="whatsappStockReportBtn" class="btn btn-ghost" style="width:45px; height:45px; padding:0; border-radius:12px; background:rgba(37,211,102,0.1); border-color:rgba(37,211,102,0.3);">
+    <i class="fab fa-whatsapp" style="color:#25D366; font-size:1.2rem;"></i>
+  </button>
+</div>
         
         <div id="stockListContainer" style="margin-top: 20px;">
           </div>
@@ -392,12 +457,16 @@
     <section id="view-ledger" class="view hidden">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-            <h3 class="card-title" style="margin:0;">History</h3>
-            <div style="display:flex; gap:8px;">
-                <button id="importLedgerBtn" class="btn btn-ghost" style="width:40px; height:40px; padding:0;"><i class="fas fa-file-import"></i></button>
-                <button id="exportLedgerBtn" class="btn btn-ghost" style="width:40px; height:40px; padding:0;"><i class="fas fa-file-export"></i></button>
-            </div>
-        </div>
+  <h3 class="card-title" style="margin:0;">History</h3>
+  <div style="display:flex; gap:8px;">
+    <button id="whatsappLedgerBtn" class="btn btn-ghost" style="width:40px; height:40px; padding:0; background:rgba(37,211,102,0.1); border-color:rgba(37,211,102,0.3);">
+      <i class="fab fa-whatsapp" style="color:#25D366;"></i>
+    </button>
+    <button id="importLedgerBtn" class="btn btn-ghost" style="width:40px; height:40px; padding:0;"><i class="fas fa-file-import"></i></button>
+    
+    <button id="exportLedgerBtn" class="btn btn-ghost" style="width:40px; height:40px; padding:0;"><i class="fas fa-file-export"></i></button>
+  </div>
+</div>
         <div style="display:flex; gap:10px; margin-bottom:20px;">
           <input type="date" id="dateFilter" />
           <button id="filterLedgerBtn" class="btn btn-primary" style="width:60px; padding:0;"><i class="fas fa-search"></i></button>
@@ -463,9 +532,13 @@
     </div>
   </div>
 
-  <footer style="text-align:center; padding: 20px; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 100px;">
-    Developed by Jignesh Thummar 2025-26
-  </footer>
+  <footer class="app-credit">
+  <div class="credit-content">
+    <span class="credit-text">Crafted with ❤️ by</span>
+    <span class="credit-name">Jignesh Thummar</span>
+    <span class="credit-year">2025–26</span>
+  </div>
+</footer>
 
   <script src="js/db.js"></script>
   <script src="js/ui.js"></script>
