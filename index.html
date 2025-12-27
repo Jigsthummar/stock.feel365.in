@@ -251,40 +251,54 @@
       font-size: 1rem;
     }
 
-    /* BOTTOM NAV */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: var(--card);
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-around;
-      padding: 12px 0;
-      z-index: 1000;
-      flex-wrap: wrap;
-    }
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-light);
-      text-decoration: none;
-      font-size: 0.7rem;
-      transition: var(--transition);
-      min-width: 80px;
-      padding: 4px 2px;
-    }
-    .nav-item.active {
-      color: var(--primary-light);
-      font-weight: 600;
-    }
-    .nav-item i {
-      font-size: 1.2rem;
-      margin-bottom: 4px;
-    }
+    /* ENHANCED BOTTOM NAVIGATION */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  /* Increased height to fit 2 rows */
+  height: auto;
+  min-height: 100px;
+  padding: 8px 0;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping */
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  z-index: 1000;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-light);
+  text-decoration: none;
+  font-size: 0.75rem;
+  transition: var(--transition);
+  /* Ensure buttons are large enough */
+  width: calc(33.333% - 8px); /* 3 per row */
+  min-width: 80px;
+  max-width: 120px;
+  padding: 8px 4px;
+  border-radius: 12px;
+  margin: 0 2px;
+}
+
+.nav-item.active {
+  color: var(--primary-light);
+  font-weight: 600;
+  background: rgba(126, 34, 206, 0.15);
+}
+
+.nav-item i {
+  font-size: 1.3rem;
+  margin-bottom: 4px;
+}
 
     @media (max-height: 650px) {
   .main-content {
