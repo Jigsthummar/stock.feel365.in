@@ -369,7 +369,10 @@
       font-size: 0.85rem;
     }
 
-
+  #view-container {
+  padding-bottom: 140px; /* ← Keep this */
+  min-height: calc(100dvh - 120px); /* ← Keep this */
+  }
 
     /* RANGE SLIDER */
     input[type="range"] { height: 6px; background: var(--surface-bright); }
