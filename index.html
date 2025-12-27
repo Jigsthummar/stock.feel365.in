@@ -10,15 +10,12 @@
 
   <!-- ApexCharts -->
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  
   <!-- Hammer.js for gestures -->
   <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
-
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -51,10 +48,9 @@
       flex-direction: column;
       min-height: 100dvh;
       overflow-x: hidden;
-      padding-bottom: 80px;
     }
 
-    /* APP HEADER */
+    /* HEADER */
     .app-header {
       padding: 16px;
       text-align: center;
@@ -99,9 +95,10 @@
     .main-content {
       padding: 20px 16px;
       flex: 1;
+      margin-bottom: 140px; /* Space for footer + bottom nav */
     }
 
-    /* CARDS */
+    /* CARD */
     .card {
       background: var(--glass);
       border-radius: var(--radius);
@@ -110,11 +107,6 @@
       border: 1px solid var(--border);
       backdrop-filter: blur(12px);
       box-shadow: var(--shadow);
-      animation: fadeIn 0.4s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     /* METRICS */
@@ -131,10 +123,6 @@
       text-align: center;
       cursor: pointer;
       transition: var(--transition);
-    }
-    .metric-card:hover {
-      transform: translateY(-4px);
-      background: rgba(126, 34, 206, 0.25);
     }
     .metric-value {
       font-size: 1.8rem;
@@ -225,7 +213,6 @@
       z-index: 2000;
       justify-content: center;
       align-items: center;
-      backdrop-filter: blur(5px);
     }
     .modal-content {
       background: var(--card);
@@ -236,11 +223,6 @@
       border: 1px solid var(--border);
       backdrop-filter: blur(15px);
       box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-      animation: modalIn 0.3s ease-out;
-    }
-    @keyframes modalIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
     }
     .close {
       position: absolute;
@@ -249,7 +231,6 @@
       font-size: 24px;
       cursor: pointer;
       color: var(--text-light);
-      transition: color 0.2s;
     }
     .close:hover { color: var(--danger); }
 
@@ -282,6 +263,7 @@
       justify-content: space-around;
       padding: 12px 0;
       z-index: 1000;
+      flex-wrap: wrap;
     }
     .nav-item {
       display: flex;
@@ -290,34 +272,39 @@
       justify-content: center;
       color: var(--text-light);
       text-decoration: none;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       transition: var(--transition);
+      min-width: 80px;
+      padding: 4px 2px;
     }
     .nav-item.active {
       color: var(--primary-light);
       font-weight: 600;
     }
     .nav-item i {
-      font-size: 1.4rem;
+      font-size: 1.2rem;
       margin-bottom: 4px;
     }
 
     /* FOOTER */
     .app-footer {
+      padding: 16px;
       text-align: center;
-      padding: 24px 16px 120px;
       color: var(--text-light);
       font-size: 0.85rem;
-      line-height: 1.5;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
     }
     .brand-credit {
       font-weight: 600;
-      margin-bottom: 12px;
-      animation: fadeIn 1s ease-out;
     }
     .social-links {
       display: flex;
-      justify-content: center;
       gap: 20px;
     }
     .social-links a {
@@ -334,93 +321,7 @@
     .social-links a:hover {
       background: var(--primary);
       color: white;
-      transform: translateY(-3px);
-    }
-
-  /* Ensure no content is hidden on small screens */
-@media (max-height: 600px) {
-  .main-content {
-    margin-bottom: 140px; /* Extra space for tiny screens */
-  }
-}
-
-    /* FIXED FOOTER ABOVE BOTTOM NAV */
-.fixed-footer {
-  padding: 16px;
-  text-align: center;
-  color: var(--text-light);
-  font-size: 0.85rem;
-  background: var(--card);
-  border-top: 1px solid var(--border);
-  z-index: 998;
-}
-
-.fixed-footer .brand-credit {
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-.fixed-footer .social-links {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-}
-
-.fixed-footer .social-links a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.08);
-  color: var(--text-light);
-  transition: all 0.25s;
-}
-
-.fixed-footer .social-links a:hover {
-  background: var(--primary);
-  color: white;
-  transform: scale(1.1);
-}
-
-/* CONTENT PADDING TO MAKE ROOM FOR FOOTER + NAV */
-.main-content {
-  padding: 20px 16px;
-  margin-bottom: 120px; /* = footer (60px) + nav (60px) */
-}
-
-    /* FAB */
-    .fab {
-      position: fixed;
-      bottom: 80px;
-      right: 20px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: var(--primary);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 6px 20px rgba(126, 34, 206, 0.4);
-      z-index: 999;
-      transition: var(--transition);
-    }
-    .fab:hover {
-      transform: scale(1.1) translateY(-3px);
-      background: var(--primary-dark);
-    }
-
-    /* HIDDEN ON MOBILE */
-    .desktop-only { display: none !important; }
-
-    /* ANIMATIONS */
-    .fade-in { animation: fadeIn 0.5s ease-out; }
-    .slide-up { animation: slideUp 0.4s ease-out; }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      transform: scale(1.1);
     }
   </style>
 </head>
@@ -440,10 +341,10 @@
     </div>
   </div>
 
-  <!-- MAIN SCROLLABLE CONTENT -->
+  <!-- MAIN CONTENT -->
   <main class="main-content">
     <!-- DASHBOARD -->
-    <div id="view-dashboard" class="view fade-in">
+    <div id="view-dashboard" class="view">
       <div class="metric-grid">
         <div class="metric-card" id="flip-add-product">
           <div class="metric-value" id="totalProducts">0</div>
@@ -454,7 +355,6 @@
           <div class="metric-label">TODAY'S SALES</div>
         </div>
       </div>
-
       <div class="card">
         <h2 style="margin-bottom:16px; font-size:1.2rem;">Top Selling Products</h2>
         <div id="bestSellingChart" style="height:200px;"></div>
@@ -466,11 +366,8 @@
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
           <h2 style="font-size:1.3rem;">Product Stock</h2>
-          <button id="whatsappStockBtn" class="btn btn-success">
-            <i class="fab fa-whatsapp"></i>
-        </button>
-      </div>
-
+          <button id="whatsappStockBtn" class="btn btn-success"><i class="fab fa-whatsapp"></i></button>
+        </div>
         <div class="controls">
           <div class="search-box">
             <input type="text" id="stockSearch" placeholder="🔍 Search products..." />
@@ -481,7 +378,6 @@
           </div>
         </div>
         <button id="clearFiltersBtn" class="btn btn-secondary" style="width:100%;margin-top:10px;"><i class="fas fa-broom"></i> Clear Search</button>
-
         <div class="responsive-table">
           <table>
             <thead><tr><th>Product</th><th>Stock</th><th>Actions</th></tr></thead>
@@ -569,74 +465,68 @@
         </div>
       </div>
     </div>
-
-   
-    <!-- FLOATING ACTION BUTTON -->
-    <a href="#" id="fabAdd" class="fab" style="display:none;">
-      <i class="fas fa-plus"></i>
-    </a>
-
   </main>
 
-   <!-- DEDICATED FOOTER (above bottom nav) -->
-  <div class="fixed-footer">
+  <!-- FOOTER -->
+  <footer class="app-footer">
     <div class="brand-credit">Developed By: Jignesh Thummar 2025-26</div>
     <div class="social-links">
       <a href="https://instagram.com/official.jignesh.1" target="_blank" aria-label="Instagram">
         <i class="fab fa-instagram"></i>
       </a>
-      <!-- WhatsApp REMOVED from footer -->
+      <a href="https://wa.me/919825531314" target="_blank" aria-label="WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+      </a>
+    </div>
+  </footer>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <a href="#" class="nav-item active" data-view="dashboard">
+      <i class="fas fa-chart-line"></i>
+      <span>Home</span>
+    </a>
+    <a href="#" class="nav-item" data-view="stock">
+      <i class="fas fa-warehouse"></i>
+      <span>Stock</span>
+    </a>
+    <a href="#" class="nav-item" data-view="add-stock">
+      <i class="fas fa-boxes"></i>
+      <span>Add Stock</span>
+    </a>
+    <a href="#" class="nav-item" data-view="return">
+      <i class="fas fa-undo"></i>
+      <span>Return</span>
+    </a>
+    <a href="#" class="nav-item" data-view="damage">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>Damage</span>
+    </a>
+    <a href="#" class="nav-item" data-view="ledger">
+      <i class="fas fa-book"></i>
+      <span>Ledger</span>
+    </a>
+  </nav>
+
+  <!-- MODALS -->
+  <div id="importModal" class="modal">
+    <div class="modal-content">
+      <span class="close import-close">&times;</span>
+      <h3 style="margin-bottom:16px;"><i class="fas fa-file-import"></i> Import Backup</h3>
+      <p>Select a JSON backup file to restore your inventory.</p>
+      <input type="file" id="importFile" accept=".json" style="margin:16px 0;" />
+      <button id="confirmImportBtn" class="btn btn-primary" style="width:100%;">Restore Data</button>
     </div>
   </div>
 
-  <!-- BOTTOM NAVIGATION -->
-<nav class="bottom-nav">
-  <a href="#" class="nav-item active" data-view="dashboard">
-    <i class="fas fa-chart-line"></i>
-    <span>Home</span>
-  </a>
-  <a href="#" class="nav-item" data-view="stock">
-    <i class="fas fa-warehouse"></i>
-    <span>Stock</span>
-  </a>
-  <a href="#" class="nav-item" data-view="add-stock">
-    <i class="fas fa-boxes"></i>
-    <span>Add Stock</span>
-  </a>
-  <a href="#" class="nav-item" data-view="return">
-    <i class="fas fa-undo"></i>
-    <span>Return</span>
-  </a>
-  <a href="#" class="nav-item" data-view="damage">
-    <i class="fas fa-exclamation-triangle"></i>
-    <span>Damage</span>
-  </a>
-  <a href="#" class="nav-item" data-view="ledger">
-    <i class="fas fa-book"></i>
-    <span>Ledger</span>
-  </a>
-</nav>
-
- <!-- MODALS -->
-    <div id="importModal" class="modal">
-      <div class="modal-content">
-        <span class="close import-close">&times;</span>
-        <h3 style="margin-bottom:16px;"><i class="fas fa-file-import"></i> Import Backup</h3>
-        <p>Select a JSON backup file to restore your inventory.</p>
-        <input type="file" id="importFile" accept=".json" style="margin:16px 0;" />
-        <button id="confirmImportBtn" class="btn btn-primary" style="width:100%;">Restore Data</button>
-      </div>
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <span class="close delete-close">&times;</span>
+      <h3 style="margin-bottom:16px;"><i class="fas fa-trash"></i> Delete Product</h3>
+      <p>Are you sure you want to delete <strong id="deleteProductName"></strong>?</p>
+      <button id="confirmDeleteBtn" class="btn btn-danger" style="width:100%;">Yes, Delete</button>
     </div>
-
-    <div id="deleteModal" class="modal">
-      <div class="modal-content">
-        <span class="close delete-close">&times;</span>
-        <h3 style="margin-bottom:16px;"><i class="fas fa-trash"></i> Delete Product</h3>
-        <p>Are you sure you want to delete <strong id="deleteProductName"></strong>?</p>
-        <button id="confirmDeleteBtn" class="btn btn-danger" style="width:100%;">Yes, Delete</button>
-      </div>
-    </div>
-
+  </div>
 
   <!-- Core logic -->
   <script src="js/db.js"></script>
