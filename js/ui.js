@@ -262,28 +262,37 @@ document.addEventListener('DOMContentLoaded', () => {
   // ======================
   // VIEW MANAGEMENT
   // ======================
-  function switchView(targetView) {
-  // Deactivate all views
+ function switchView(targetView) {
+  // Hide all views by setting display: none
   document.querySelectorAll('.view').forEach(view => {
-    view.classList.remove('active');
+    view.style.display = 'none';
   });
   
-  // Activate target view
+  // Show the target view
   const target = document.getElementById(`view-${targetView}`);
-  if (target) target.classList.add('active');
+  if (target) {
+    target.style.display = 'block';
+  }
 
-  // Update navbar
+  // Update bottom navigation active state
   document.querySelectorAll('.nav-item').forEach(item => {
     item.classList.toggle('active', item.dataset.view === targetView);
   });
 
-  // Refresh content
-  if (targetView === 'dashboard') updateDashboard();
+  // Refresh view content
+  if (targetView === 'dashboard') {
+    updateDashboard();
+  } 
   else if (['add-stock', 'sell', 'return', 'damage'].includes(targetView)) {
     populateProductDropdowns();
+  } 
+  else if (targetView === 'ledger') {
+    renderLedger();
+  } 
+  else if (targetView === 'stock') {
+    renderStockTable();
   }
-  else if (targetView === 'ledger') renderLedger();
-  else if (targetView === 'stock') renderStockTable();
+  // 'add-product' requires no special refresh
 }
 
   // ======================
