@@ -98,72 +98,84 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderStockTable() {
-    const tbody = document.getElementById('stockTableBody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    const products = Array.from(DB.products.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-    
-    if (products.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:#a1a1aa;">No products</td></tr>`;
-      return;
+  const container = document.getElementById('stockListContainer');
+  if (!container) return;
+  
+  const products = Array.from(DB.products.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  if (products.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-dim); text-align:center; padding:20px;">No products</p>';
+    return;
+  }
+
+  container.innerHTML = products.map(([name, qty]) => {
+    let status = '✅ OK';
+    let badgeClass = 'stock-badge';
+    if (qty <= 0) {
+      status = '❌ OUT';
+      badgeClass += '" style="background:rgba(244, 63, 94, 0.15); color:var(--danger)';
+    } else if (qty <= LOW_STOCK_THRESHOLD) {
+      status = '⚠️ LOW';
+      badgeClass += '" style="background:rgba(245, 158, 11, 0.15); color:var(--warning)';
+    } else {
+      badgeClass += '" style="background:rgba(16, 185, 129, 0.15); color:var(--success)';
     }
 
-    products.forEach(([name, qty]) => {
-      const row = document.createElement('tr');
-      let stockColor = '#f5f3ff';
-      if (qty <= 0) stockColor = '#ef4444';
-      else if (qty <= LOW_STOCK_THRESHOLD) stockColor = '#f59e0b';
+    return `
+      <div class="stock-item">
+        <div class="stock-info">
+          <h4>${name}</h4>
+          <p>Current stock</p>
+        </div>
+        <div>
+          <div class="${badgeClass}">${qty} units</div>
+          <button class="btn btn-danger delete-btn" style="margin-top:8px; padding:6px 12px; font-size:0.85rem;" data-product="${name}">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
 
-      const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'btn btn-danger';
-      deleteBtn.style.padding = '6px 10px';
-      deleteBtn.style.fontSize = '0.85rem';
-      deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-      deleteBtn.onclick = () => {
-        currentDeleteProduct = name;
-        document.getElementById('deleteProductName').textContent = name;
-        document.getElementById('deleteModal').style.display = 'flex';
-      };
+  // Attach delete handlers
+  container.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.onclick = () => {
+      currentDeleteProduct = btn.dataset.product;
+      document.getElementById('deleteProductName').textContent = currentDeleteProduct;
+      document.getElementById('deleteModal').style.display = 'flex';
+    };
+  });
 
-      row.innerHTML = `
-        <td>${name}</td>
-        <td><span style="color:${stockColor}; font-weight:600;">${qty} ${qty <= LOW_STOCK_THRESHOLD ? '⚠️' : ''}</span></td>
-        <td></td>
-      `;
-      row.cells[2].appendChild(deleteBtn);
-      tbody.appendChild(row);
-    });
-
-    applyStockFilters();
-  }
+  applyStockFilters();
+}
 
   function renderLedger(filterDate = null) {
-    const tbody = document.getElementById('ledgerBody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    const transactions = DB.getTransactions(filterDate);
-    
-    if (transactions.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#a1a1aa;">No records</td></tr>`;
-      return;
-    }
-
-    transactions.forEach(t => {
-      const color = 
-        t.type === 'ADD' ? '#10b981' :
-        t.type === 'SALE' ? '#ef4444' :
-        t.type === 'RETURN' ? '#a855f7' : '#f59e0b';
-        
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${t.date}</td>
-        <td>${t.product}</td>
-        <td>${t.qty > 0 ? '+' + t.qty : t.qty}</td>
-        <td><span style="color:${color};">${t.type}</span></td>
-      `;
-      tbody.appendChild(row);
-    });
+  const container = document.getElementById('ledgerItems');
+  if (!container) return;
+  
+  const transactions = DB.getTransactions(filterDate);
+  if (transactions.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-dim); text-align:center; padding:20px;">No records</p>';
+    return;
   }
+
+  container.innerHTML = transactions.map(t => {
+    const color = 
+      t.type === 'ADD' ? 'var(--success)' :
+      t.type === 'SALE' ? 'var(--danger)' :
+      t.type === 'RETURN' ? 'var(--accent)' : 'var(--warning)';
+    const sign = t.qty > 0 ? '+' : '';
+    
+    return `
+      <div class="stock-item" style="margin-bottom:10px;">
+        <div class="stock-info">
+          <h4>${t.product}</h4>
+          <p>${t.date} • ${t.type}</p>
+        </div>
+        <div style="color:${color}; font-weight:600; font-size:1.1rem;">${sign}${Math.abs(t.qty)}</div>
+      </div>
+    `;
+  }).join('');
+}
 
   // ======================
   // VIEW MANAGEMENT
@@ -220,12 +232,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function applyStockFilters() {
-    const term = document.getElementById('stockSearch')?.value.toLowerCase() || '';
-    document.querySelectorAll('#stockTableBody tr').forEach(row => {
-      const cell = row.cells[0];
-      row.style.display = !term || cell.textContent.toLowerCase().includes(term) ? '' : 'none';
-    });
-  }
+  const searchTerm = document.getElementById('stockSearch')?.value.toLowerCase() || '';
+  const items = document.querySelectorAll('#stockListContainer .stock-item');
+  items.forEach(item => {
+    const productName = item.querySelector('.stock-info h4').textContent.toLowerCase();
+    item.style.display = productName.includes(searchTerm) ? '' : 'none';
+  });
+}
 
   // ======================
   // ACTION HANDLERS
@@ -306,8 +319,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // WhatsApp
-    document.getElementById('whatsappStockBtn')?.addEventListener('click', whatsappStockReport);
+    // Header WhatsApp = open blank chat only
+document.getElementById('whatsappStockBtn')?.addEventListener('click', () => {
+  window.open('https://wa.me/919825531314', '_blank');
+});
     document.getElementById('whatsappLedgerBtn')?.addEventListener('click', whatsappLedgerReport);
+    document.getElementById('whatsappStockReportBtn')?.addEventListener('click', whatsappStockReport);
 
     // Backup
     document.getElementById('backupNowBtn')?.addEventListener('click', exportBackup);
@@ -364,6 +381,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('importModal').style.display = 'none';
   });
 
+  // Close import modal when clicking outside
+document.getElementById('importModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('importModal')) {
+    document.getElementById('importModal').style.display = 'none';
+  }
+});
+
   document.getElementById('confirmDeleteBtn')?.addEventListener('click', () => {
     if (currentDeleteProduct && DB.products.has(currentDeleteProduct)) {
       DB.products.delete(currentDeleteProduct);
@@ -386,8 +410,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  document.getElementById('flip-add-product')?.addEventListener('click', () => switchView('add-product'));
-  document.getElementById('flip-sell')?.addEventListener('click', () => switchView('sell'));
+  document.getElementById('go-to-stock')?.addEventListener('click', () => switchView('add-product'));
+document.getElementById('go-to-sales')?.addEventListener('click', () => switchView('sell'));
 
   // ======================
   // UTILITIES
