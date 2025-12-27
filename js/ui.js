@@ -100,104 +100,191 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderStockTable() {
   const container = document.getElementById('stockListContainer');
   if (!container) return;
-  
+
   const products = Array.from(DB.products.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+
+  // Empty state with SVG
   if (products.length === 0) {
-    container.innerHTML = '<p style="color:var(--text-dim); text-align:center; padding:20px;">No products</p>';
+    container.innerHTML = `
+      <div style="text-align:center; padding:30px; color:var(--text-dim);">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="opacity:0.6; margin:0 auto 16px;">
+          <path d="M4 19H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M4 13H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M4 7H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M16 6L16 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M19 6L19 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div style="font-size:1.1rem; margin-bottom:8px;">No products yet</div>
+        <div style="font-size:0.9rem;">Tap <strong>+ Add Stock</strong> to get started</div>
+      </div>
+    `;
     return;
   }
 
-  container.innerHTML = products.map(([name, qty]) => {
-    let status = '✅ OK';
-    let badgeClass = 'stock-badge';
-    if (qty <= 0) {
-      status = '❌ OUT';
-      badgeClass += '" style="background:rgba(244, 63, 94, 0.15); color:var(--danger)';
-    } else if (qty <= LOW_STOCK_THRESHOLD) {
-      status = '⚠️ LOW';
-      badgeClass += '" style="background:rgba(245, 158, 11, 0.15); color:var(--warning)';
-    } else {
-      badgeClass += '" style="background:rgba(16, 185, 129, 0.15); color:var(--success)';
+  // Clear container
+  container.innerHTML = '';
+
+  // Create fragment for performance
+  const fragment = document.createDocumentFragment();
+
+  products.forEach(([name, qty]) => {
+    // Create stock item wrapper
+    const item = document.createElement('div');
+    item.className = 'stock-item';
+
+    // Apply low-stock pulse (only once)
+    if (qty <= LOW_STOCK_THRESHOLD && qty > 0) {
+      item.classList.add('pulsing');
+      item.addEventListener('animationend', () => {
+        item.classList.remove('pulsing');
+      }, { once: true });
     }
 
-    return `
-      <div class="stock-item">
-        <div class="stock-info">
-          <h4>${name}</h4>
-          <p>Current stock</p>
-        </div>
-        <div>
-          <div class="${badgeClass}">${qty} units</div>
-          <button class="btn btn-danger delete-btn" style="margin-top:8px; padding:6px 12px; font-size:0.85rem;" data-product="${name}">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-      </div>
-    `;
-  }).join('');
+    // Badge styling
+    let badgeClass = 'stock-badge';
+    let badgeStyle = '';
+    if (qty <= 0) {
+      badgeStyle = 'background:rgba(244, 63, 94, 0.15); color:var(--danger)';
+    } else if (qty <= LOW_STOCK_THRESHOLD) {
+      badgeStyle = 'background:rgba(245, 158, 11, 0.15); color:var(--warning)';
+    } else {
+      badgeStyle = 'background:rgba(16, 185, 129, 0.15); color:var(--success)';
+    }
 
-  // Attach delete handlers
-  container.querySelectorAll('.delete-btn').forEach(btn => {
-    btn.onclick = () => {
-      currentDeleteProduct = btn.dataset.product;
-      document.getElementById('deleteProductName').textContent = currentDeleteProduct;
+    // Build inner content
+    const inner = document.createElement('div');
+    inner.style.display = 'flex';
+    inner.style.justifyContent = 'space-between';
+    inner.style.alignItems = 'center';
+    inner.style.width = '100%';
+
+    const info = document.createElement('div');
+    info.className = 'stock-info';
+    info.innerHTML = `<h4>${name}</h4><p>Current stock</p>`;
+
+    const actions = document.createElement('div');
+    actions.style.textAlign = 'right';
+
+    const badge = document.createElement('div');
+    badge.className = badgeClass;
+    badge.style.cssText = badgeStyle;
+    badge.textContent = `${qty} units`;
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn btn-danger delete-btn';
+    deleteBtn.style.marginTop = '8px';
+    deleteBtn.style.padding = '6px 12px';
+    deleteBtn.style.fontSize = '0.85rem';
+    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+    deleteBtn.dataset.product = name;
+    deleteBtn.onclick = () => {
+      currentDeleteProduct = name;
+      document.getElementById('deleteProductName').textContent = name;
       document.getElementById('deleteModal').style.display = 'flex';
     };
+
+    actions.appendChild(badge);
+    actions.appendChild(deleteBtn);
+    inner.appendChild(info);
+    inner.appendChild(actions);
+    item.appendChild(inner);
+    fragment.appendChild(item);
   });
 
+  container.appendChild(fragment);
   applyStockFilters();
 }
 
   function renderLedger(filterDate = null) {
   const container = document.getElementById('ledgerItems');
   if (!container) return;
-  
+
   const transactions = DB.getTransactions(filterDate);
+  const today = new Date().toISOString().slice(0, 10);
+
+  // Empty state
   if (transactions.length === 0) {
-    container.innerHTML = '<p style="color:var(--text-dim); text-align:center; padding:20px;">No records</p>';
+    container.innerHTML = `
+      <div style="text-align:center; padding:30px; color:var(--text-dim);">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="opacity:0.6; margin:0 auto 16px;">
+          <path d="M3 8V6A2 2 0 0 1 5 4H19A2 2 0 0 1 21 6V8" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M8 4V20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M16 4V20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <rect x="3" y="12" width="18" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <div style="font-size:1.1rem; margin-bottom:8px;">No records found</div>
+        <div style="font-size:0.9rem;">Transactions will appear here automatically</div>
+      </div>
+    `;
     return;
   }
 
-  container.innerHTML = transactions.map(t => {
+  container.innerHTML = '';
+  const fragment = document.createDocumentFragment();
+
+  transactions.forEach(t => {
+    const item = document.createElement('div');
+    item.className = 'stock-item';
+    item.style.marginBottom = '10px';
+
+    // Highlight today
+    if (t.date === today) {
+      item.style.borderLeft = '3px solid var(--primary)';
+      item.style.paddingLeft = '12px';
+    }
+
     const color = 
       t.type === 'ADD' ? 'var(--success)' :
       t.type === 'SALE' ? 'var(--danger)' :
       t.type === 'RETURN' ? 'var(--accent)' : 'var(--warning)';
     const sign = t.qty > 0 ? '+' : '';
-    
-    return `
-      <div class="stock-item" style="margin-bottom:10px;">
-        <div class="stock-info">
-          <h4>${t.product}</h4>
-          <p>${t.date} • ${t.type}</p>
-        </div>
-        <div style="color:${color}; font-weight:600; font-size:1.1rem;">${sign}${Math.abs(t.qty)}</div>
-      </div>
-    `;
-  }).join('');
-}
 
+    const info = document.createElement('div');
+    info.className = 'stock-info';
+    info.innerHTML = `<h4>${t.product}</h4><p>${t.date} • ${t.type}</p>`;
+
+    const value = document.createElement('div');
+    value.style.color = color;
+    value.style.fontWeight = '600';
+    value.style.fontSize = '1.1rem';
+    value.textContent = `${sign}${Math.abs(t.qty)}`;
+
+    item.style.display = 'flex';
+    item.style.justifyContent = 'space-between';
+    item.style.alignItems = 'center';
+    item.appendChild(info);
+    item.appendChild(value);
+    fragment.appendChild(item);
+  });
+
+  container.appendChild(fragment);
+}
   // ======================
   // VIEW MANAGEMENT
   // ======================
   function switchView(targetView) {
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.classList.toggle('active', item.dataset.view === targetView);
-    });
+  // Deactivate all views
+  document.querySelectorAll('.view').forEach(view => {
+    view.classList.remove('active');
+  });
+  
+  // Activate target view
+  const target = document.getElementById(`view-${targetView}`);
+  if (target) target.classList.add('active');
 
-    document.querySelectorAll('.view').forEach(view => {
-      view.style.display = (view.id === `view-${targetView}`) ? 'block' : 'none';
-    });
+  // Update navbar
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.view === targetView);
+  });
 
-    if (targetView === 'dashboard') updateDashboard();
-    else if (['add-stock', 'sell', 'return', 'damage'].includes(targetView)) {
-      populateProductDropdowns();
-    } else if (targetView === 'ledger') renderLedger();
-    else if (targetView === 'stock') renderStockTable();
-    else if (targetView === 'add-product') {
-      // accessible if needed
-    }
+  // Refresh content
+  if (targetView === 'dashboard') updateDashboard();
+  else if (['add-stock', 'sell', 'return', 'damage'].includes(targetView)) {
+    populateProductDropdowns();
   }
+  else if (targetView === 'ledger') renderLedger();
+  else if (targetView === 'stock') renderStockTable();
+}
 
   // ======================
   // UTILITIES
