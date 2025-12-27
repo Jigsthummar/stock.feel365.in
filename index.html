@@ -2,564 +2,469 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <title>FEEL365 Stock Manager</title>
-  <link rel="icon" href=",">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
+  <title>FEEL365 | Ultra Stock</title>
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#7e22ce" />
+  <meta name="theme-color" content="#0a0a0f" />
 
-  <!-- ApexCharts -->
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <!-- Hammer.js for gestures -->
   <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
     :root {
-      --primary: #7e22ce;
-      --primary-dark: #6b21a8;
-      --primary-light: #a855f7;
-      --primary-gradient: linear-gradient(135deg, #a855f7, #8b5cf6);
-      --bg: #0a0a0f;
-      --card: #14141d;
-      --text: #f5f3ff;
-      --text-light: #a1a1aa;
-      --border: #27272a;
+      --bg: #050508;
+      --surface: #12121a;
+      --surface-bright: #1c1c27;
+      --primary: #8b5cf6;
+      --primary-glow: rgba(139, 92, 246, 0.4);
+      --accent: #d946ef;
+      --text: #ffffff;
+      --text-dim: #94a3b8;
       --success: #10b981;
       --warning: #f59e0b;
-      --danger: #ef4444;
-      --glass: rgba(30, 30, 46, 0.7);
-      --transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-      --radius: 20px;
-      --shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      --danger: #f43f5e;
+      --glass: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --grad: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { 
+      margin: 0; padding: 0; box-sizing: border-box; 
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Inter', system-ui, sans-serif;
-      display: flex;
-      flex-direction: column;
-      min-height: 100dvh;
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.6;
       overflow-x: hidden;
+      min-height: 100dvh;
     }
+
+    /* ANIMATIONS */
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
+      to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+
+    .view-animate { animation: slideIn 0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
 
     /* HEADER */
     .app-header {
-      padding: 16px;
-      text-align: center;
-      background: rgba(10, 10, 15, 0.8);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .app-title {
-      font-size: 1.6rem;
-      font-weight: 800;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      letter-spacing: -0.5px;
-    }
-
-    /* BACKUP ALERT */
-    .backup-alert {
-      background: rgba(126, 34, 206, 0.15);
-      border-left: 4px solid var(--warning);
-      padding: 16px;
-      border-radius: var(--radius);
+      padding: 20px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin: 16px;
-      animation: pulse 2s infinite;
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(245, 158, 11, 0.2);
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+      background: rgba(5, 5, 8, 0.8);
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid var(--glass-border);
     }
 
-    /* MAIN CONTENT */
-    .main-content {
-      padding: 20px 16px;
-      flex: 1;
-      margin-bottom: 140px; /* Space for footer + bottom nav */
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    /* CARD */
-    .card {
-      background: var(--glass);
-      border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 20px;
-      border: 1px solid var(--border);
-      backdrop-filter: blur(12px);
-      box-shadow: var(--shadow);
-    }
-
-    /* METRICS */
-    .metric-grid {
+    /* DASHBOARD WIDGETS */
+    .stats-container {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 16px;
-      margin-bottom: 24px;
-    }
-    .metric-card {
-      background: rgba(126, 34, 206, 0.15);
-      border-radius: 16px;
-      padding: 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .metric-value {
-      font-size: 1.8rem;
-      font-weight: 800;
-      margin: 8px 0;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .metric-label {
-      font-size: 0.85rem;
-      color: var(--text-light);
+      padding: 20px;
     }
 
-    /* CONTROLS */
-    .controls {
-      display: flex;
-      gap: 12px;
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--glass-border);
+      padding: 20px;
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      opacity: 0.1;
+    }
+
+    .stat-card:active { transform: scale(0.96); }
+
+    .stat-value { font-size: 2rem; font-weight: 800; margin-top: 5px; }
+    .stat-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* CARDS */
+    .card {
+      background: var(--surface);
+      margin: 0 20px 20px;
+      padding: 24px;
+      border-radius: 28px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
       margin-bottom: 20px;
-      flex-wrap: wrap;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    .search-box input, .threshold-box input {
+
+    /* INPUTS */
+    .input-group { margin-bottom: 20px; }
+    label { display: block; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 8px; margin-left: 4px; }
+    
+    input, select {
       width: 100%;
-      padding: 14px;
-      border-radius: 14px;
-      background: #1f1f2b;
-      border: 1px solid var(--border);
-      color: var(--text);
+      background: var(--surface-bright);
+      border: 1px solid var(--glass-border);
+      padding: 16px;
+      border-radius: 16px;
+      color: white;
+      font-family: inherit;
       font-size: 1rem;
+      outline: none;
+      transition: border 0.3s;
     }
-    .threshold-box label {
-      display: block;
-      margin-bottom: 8px;
-      color: var(--text-light);
-      font-size: 0.9rem;
-    }
-    .threshold-value {
-      font-weight: bold;
-      color: var(--warning);
-    }
+
+    input:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
 
     /* BUTTONS */
     .btn {
-      padding: 14px 20px;
-      border-radius: 14px;
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
       border: none;
       font-weight: 600;
+      font-size: 1rem;
       cursor: pointer;
-      transition: var(--transition);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      font-size: 1rem;
-    }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
-    .btn-secondary { background: #3f3f46; color: var(--text); }
-    .btn-secondary:hover { background: #52525b; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-success { background: var(--success); color: white; }
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
+      transition: all 0.3s;
     }
 
-    /* TABLE */
-    .responsive-table {
-      overflow-x: auto;
-      border-radius: 14px;
-      margin-top: 16px;
+    .btn-primary { background: var(--grad); color: white; box-shadow: 0 8px 20px var(--primary-glow); }
+    .btn-primary:active { transform: scale(0.98); filter: brightness(1.2); }
+    
+    .btn-ghost { background: var(--glass); color: white; border: 1px solid var(--glass-border); }
+    .btn-danger { background: rgba(244, 63, 94, 0.15); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.3); }
+
+    /* TABLE STYLES */
+    .stock-item {
+      background: var(--glass);
+      padding: 16px;
+      border-radius: 18px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid transparent;
+      transition: all 0.3s;
     }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 14px; text-align: left; border-bottom: 1px solid var(--border); }
-    th { color: var(--text-light); font-weight: 600; font-size: 0.9rem; }
-    tr:last-child td { border-bottom: none; }
+
+    .stock-item:hover { border-color: var(--glass-border); background: var(--surface-bright); }
+
+    .stock-info h4 { font-size: 1rem; font-weight: 600; }
+    .stock-info p { font-size: 0.8rem; color: var(--text-dim); }
+
+    .stock-badge {
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* BOTTOM NAV */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; width: 100%;
+      background: rgba(18, 18, 26, 0.95);
+      backdrop-filter: blur(20px);
+      display: flex;
+      justify-content: space-around;
+      padding: 15px 10px calc(15px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--glass-border);
+      z-index: 1000;
+    }
+
+    .nav-item {
+      color: var(--text-dim);
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.7rem;
+      transition: all 0.3s;
+      flex: 1;
+    }
+
+    .nav-item.active { color: var(--primary); }
+    .nav-item i { font-size: 1.3rem; }
+
+    .fab-sale {
+      background: var(--grad);
+      width: 55px; height: 55px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: -35px;
+      box-shadow: 0 10px 20px var(--primary-glow);
+      color: white !important;
+      transform: rotate(45deg);
+    }
+    .fab-sale i { transform: rotate(-45deg); }
 
     /* MODALS */
     .modal {
       display: none;
       position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.85);
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(10px);
       z-index: 2000;
-      justify-content: center;
+      padding: 20px;
       align-items: center;
+      justify-content: center;
     }
+
     .modal-content {
-      background: var(--card);
-      width: 92%;
-      max-width: 500px;
-      padding: 24px;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      backdrop-filter: blur(15px);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-    }
-    .close {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      font-size: 24px;
-      cursor: pointer;
-      color: var(--text-light);
-    }
-    .close:hover { color: var(--danger); }
-
-    /* FORMS */
-    label {
-      display: block;
-      margin: 20px 0 10px;
-      font-weight: 600;
-      color: var(--text-light);
-    }
-    input, select {
+      background: var(--surface);
       width: 100%;
-      padding: 14px;
-      border-radius: 14px;
-      background: #1f1f2b;
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 1rem;
+      max-width: 400px;
+      border-radius: 30px;
+      padding: 30px;
+      border: 1px solid var(--glass-border);
+      animation: slideIn 0.3s ease;
     }
 
-    /* ENHANCED BOTTOM NAVIGATION */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  /* Increased height to fit 2 rows */
-  height: auto;
-  min-height: 100px;
-  padding: 8px 0;
-  background: var(--card);
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-wrap: wrap; /* Allow wrapping */
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
-  z-index: 1000;
-}
-
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-light);
-  text-decoration: none;
-  font-size: 0.75rem;
-  transition: var(--transition);
-  /* Ensure buttons are large enough */
-  width: calc(33.333% - 8px); /* 3 per row */
-  min-width: 80px;
-  max-width: 120px;
-  padding: 8px 4px;
-  border-radius: 12px;
-  margin: 0 2px;
-}
-
-.nav-item.active {
-  color: var(--primary-light);
-  font-weight: 600;
-  background: rgba(126, 34, 206, 0.15);
-}
-
-.nav-item i {
-  font-size: 1.3rem;
-  margin-bottom: 4px;
-}
-
-    @media (max-height: 650px) {
-  .main-content {
-    margin-bottom: 160px; /* Extra space for tiny screens */
-  }
-  .app-footer {
-    margin-bottom: 80px;
-  }
-}
-
-
-    /* Ensure footer sits above bottom nav */
-.app-footer {
-  padding: 16px;
-  text-align: center;
-  color: var(--text-light);
-  font-size: 0.85rem;
-  background: var(--card);
-  border-top: 1px solid var(--border);
-  /* Position above bottom nav */
-  position: relative;
-  z-index: 999;
-  /* Prevent overlap */
-  margin-bottom: 80px; /* = height of bottom nav */
-}
-
-/* Main content must not cover footer */
-.main-content {
-  padding: 20px 16px;
-  margin-bottom: 140px; /* = footer (70px) + bottom nav (70px) */
-}
-
-    .brand-credit {
-      font-weight: 600;
-    }
-    .social-links {
+    .backup-alert {
+      background: var(--warning);
+      color: black;
+      margin: 15px 20px;
+      padding: 12px 20px;
+      border-radius: 15px;
       display: flex;
-      gap: 20px;
-    }
-    .social-links a {
-      display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      color: var(--text-light);
-      transition: all 0.3s;
+      font-weight: 600;
+      font-size: 0.85rem;
     }
-    .social-links a:hover {
-      background: var(--primary);
-      color: white;
-      transform: scale(1.1);
-    }
+
+    #view-container { padding-bottom: 120px; }
+    .hidden { display: none; }
+
+    /* RANGE SLIDER */
+    input[type="range"] { height: 6px; background: var(--surface-bright); }
   </style>
 </head>
 <body>
-  <!-- HEADER -->
+
   <header class="app-header">
-    <h1 class="app-title">FEEL365 Stock Manager</h1>
+    <div class="logo">FEEL365</div>
+    <div style="display:flex; gap:12px;">
+      <button id="whatsappStockBtn" class="btn btn-ghost" style="width: 45px; height: 45px; padding:0; border-radius: 12px;">
+        <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.2rem;"></i>
+      </button>
+    </div>
   </header>
 
-  <!-- BACKUP ALERT -->
-  <div id="backupAlert" class="backup-alert" style="display:none;">
-    <div>
-      <strong>⚠️ Backup overdue!</strong> Export your data.
-    </div>
-    <div style="display:flex;gap:10px;">
-      <button id="backupNowBtn" class="btn btn-primary"><i class="fas fa-file-export"></i></button>
-    </div>
+  <div id="backupAlert" class="backup-alert hidden">
+    <span>⚠️ Backup is overdue</span>
+    <button id="backupNowBtn" style="border:none; background:white; padding:5px 10px; border-radius:8px; font-weight:bold;">Export</button>
   </div>
 
-  <!-- MAIN CONTENT -->
-  <main class="main-content">
-    <!-- DASHBOARD -->
-    <div id="view-dashboard" class="view">
-      <div class="metric-grid">
-        <div class="metric-card" id="flip-add-product">
-          <div class="metric-value" id="totalProducts">0</div>
-          <div class="metric-label">TOTAL PRODUCTS</div>
+  <main id="view-container">
+    
+    <section id="view-dashboard" class="view view-animate">
+      <div class="stats-container">
+        <div class="stat-card" id="go-to-stock">
+          <div class="stat-label">Stock Value</div>
+          <div class="stat-value" id="totalProducts">0</div>
         </div>
-        <div class="metric-card" id="flip-sell">
-          <div class="metric-value" id="todaySales">0</div>
-          <div class="metric-label">TODAY'S SALES</div>
+        <div class="stat-card" id="go-to-sales">
+          <div class="stat-label">Sales Today</div>
+          <div class="stat-value" id="todaySales" style="color: var(--success);">0</div>
         </div>
       </div>
+      
       <div class="card">
-        <h2 style="margin-bottom:16px; font-size:1.2rem;">Top Selling Products</h2>
-        <div id="bestSellingChart" style="height:200px;"></div>
+        <h3 class="card-title"><i class="fas fa-fire" style="color: var(--accent);"></i> Hot Products</h3>
+        <div id="bestSellingChart" style="min-height: 200px;"></div>
       </div>
-    </div>
 
-    <!-- STOCK -->
-    <div id="view-stock" class="view" style="display:none;">
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-          <h2 style="font-size:1.3rem;">Product Stock</h2>
-          <button id="whatsappStockBtn" class="btn btn-success"><i class="fab fa-whatsapp"></i></button>
+        <h3 class="card-title"><i class="fas fa-plus-circle"></i> Quick Actions</h3>
+        <button class="btn btn-primary" id="flip-add-product" style="margin-bottom: 12px;">
+          <i class="fas fa-tag"></i> Create New Product
+        </button>
+      </div>
+    </section>
+
+    <section id="view-stock" class="view hidden">
+      <div class="card">
+        <h3 class="card-title">Inventory Control</h3>
+        <div class="input-group">
+          <input type="text" id="stockSearch" placeholder="Search by name..." />
         </div>
-        <div class="controls">
-          <div class="search-box">
-            <input type="text" id="stockSearch" placeholder="🔍 Search products..." />
+        <div class="input-group">
+          <label>Low Stock Warning: <span id="thresholdValue" style="color: var(--warning);">5</span></label>
+          <input type="range" id="lowStockThreshold" min="1" max="50" value="5" />
+        </div>
+        
+        <div id="stockListContainer" style="margin-top: 20px;">
           </div>
-          <div class="threshold-box">
-            <label>Low Stock: <span id="thresholdValue">5</span></label>
-            <input type="range" id="lowStockThreshold" min="1" max="50" value="5" />
-          </div>
+      </div>
+    </section>
+
+    <section id="view-sell" class="view hidden">
+      <div class="card view-animate">
+        <h3 class="card-title"><i class="fas fa-shopping-cart"></i> New Sale</h3>
+        <div class="input-group">
+          <label>Product</label>
+          <select id="sellProduct"></select>
         </div>
-        <button id="clearFiltersBtn" class="btn btn-secondary" style="width:100%;margin-top:10px;"><i class="fas fa-broom"></i> Clear Search</button>
-        <div class="responsive-table">
-          <table>
-            <thead><tr><th>Product</th><th>Stock</th><th>Actions</th></tr></thead>
-            <tbody id="stockTableBody"></tbody>
-          </table>
+        <div class="input-group">
+          <label>Quantity</label>
+          <input type="number" id="sellQty" placeholder="0" />
         </div>
+        <button id="saveSellBtn" class="btn btn-primary">Process Sale</button>
       </div>
-    </div>
+    </section>
 
-    <!-- ADD PRODUCT -->
-    <div id="view-add-product" class="view" style="display:none;">
-      <div class="card">
-        <h2 style="margin-bottom:20px;">Add New Product</h2>
-        <label>Product Name</label>
-        <input type="text" id="newProductName" placeholder="e.g. Cotton Suit" />
-        <button id="saveProductBtn" class="btn btn-primary" style="margin-top:20px;"><i class="fas fa-plus"></i> Add Product</button>
-      </div>
-    </div>
-
-    <!-- ADD STOCK -->
-    <div id="view-add-stock" class="view" style="display:none;">
-      <div class="card">
-        <h2 style="margin-bottom:20px;">Add Stock</h2>
-        <label>Select Product</label>
-        <select id="addStockProduct"></select>
-        <label>Quantity</label>
-        <input type="number" id="addStockQty" min="1" placeholder="Enter quantity" />
-        <button id="saveAddStockBtn" class="btn btn-primary" style="margin-top:20px;"><i class="fas fa-box-open"></i> Add Stock</button>
-      </div>
-    </div>
-
-    <!-- SELL -->
-    <div id="view-sell" class="view" style="display:none;">
-      <div class="card">
-        <h2 style="margin-bottom:20px;">Record Sale</h2>
-        <label>Select Product</label>
-        <select id="sellProduct"></select>
-        <label>Quantity</label>
-        <input type="number" id="sellQty" min="1" placeholder="Enter quantity" />
-        <button id="saveSellBtn" class="btn btn-primary" style="margin-top:20px;"><i class="fas fa-shopping-cart"></i> Record Sale</button>
-      </div>
-    </div>
-
-    <!-- RETURN -->
-    <div id="view-return" class="view" style="display:none;">
-      <div class="card">
-        <h2 style="margin-bottom:20px;">Record Return</h2>
-        <label>Select Product</label>
-        <select id="returnProduct"></select>
-        <label>Quantity</label>
-        <input type="number" id="returnQty" min="1" placeholder="Enter quantity" />
-        <button id="saveReturnBtn" class="btn btn-primary" style="margin-top:20px;"><i class="fas fa-undo"></i> Record Return</button>
-      </div>
-    </div>
-
-    <!-- DAMAGE -->
-    <div id="view-damage" class="view" style="display:none;">
-      <div class="card">
-        <h2 style="margin-bottom:20px;">Report Damage</h2>
-        <label>Select Product</label>
-        <select id="damageProduct"></select>
-        <label>Quantity</label>
-        <input type="number" id="damageQty" min="1" placeholder="Enter quantity" />
-        <button id="saveDamageBtn" class="btn btn-danger" style="margin-top:20px;"><i class="fas fa-exclamation-triangle"></i> Report Damage</button>
-      </div>
-    </div>
-
-    <!-- LEDGER -->
-    <div id="view-ledger" class="view" style="display:none;">
-      <div class="card">
-        <h2 style="margin-bottom:20px;">Stock Ledger</h2>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
-          <input type="date" id="dateFilter" style="flex:1;min-width:140px;" />
-          <button id="filterLedgerBtn" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
-          <button id="clearLedgerFilterBtn" class="btn btn-secondary"><i class="fas fa-times"></i> Clear</button>
-          <button id="exportLedgerBtn" class="btn btn-outline"><i class="fas fa-file-export"></i></button>
-          <button id="importLedgerBtn" class="btn btn-outline"><i class="fas fa-file-import"></i></button>
-          <button id="whatsappLedgerBtn" class="btn btn-success"><i class="fab fa-whatsapp"></i></button>
+    <section id="view-add-stock" class="view hidden">
+      <div class="card view-animate">
+        <h3 class="card-title"><i class="fas fa-box-open"></i> Refill Stock</h3>
+        <div class="input-group">
+          <label>Product</label>
+          <select id="addStockProduct"></select>
         </div>
-        <div class="responsive-table">
-          <table>
-            <thead><tr><th>Date</th><th>Product</th><th>Change</th><th>Type</th></tr></thead>
-            <tbody id="ledgerBody"></tbody>
-          </table>
+        <div class="input-group">
+          <label>Quantity to Add</label>
+          <input type="number" id="addStockQty" placeholder="0" />
         </div>
+        <button id="saveAddStockBtn" class="btn btn-primary">Add to Inventory</button>
       </div>
-    </div>
+    </section>
+
+    <section id="view-return" class="view hidden">
+        <div class="card view-animate">
+          <h3 class="card-title">Returns & Exchanges</h3>
+          <select id="returnProduct"></select>
+          <input type="number" id="returnQty" placeholder="Qty" style="margin: 15px 0;" />
+          <button id="saveReturnBtn" class="btn btn-primary">Accept Return</button>
+        </div>
+    </section>
+
+    <section id="view-damage" class="view hidden">
+        <div class="card view-animate">
+          <h3 class="card-title">Report Damage</h3>
+          <select id="damageProduct"></select>
+          <input type="number" id="damageQty" placeholder="Qty" style="margin: 15px 0;" />
+          <button id="saveDamageBtn" class="btn btn-danger">Record Loss</button>
+        </div>
+    </section>
+
+    <section id="view-ledger" class="view hidden">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+            <h3 class="card-title" style="margin:0;">History</h3>
+            <div style="display:flex; gap:8px;">
+                <button id="importLedgerBtn" class="btn btn-ghost" style="width:40px; height:40px; padding:0;"><i class="fas fa-file-import"></i></button>
+                <button id="exportLedgerBtn" class="btn btn-ghost" style="width:40px; height:40px; padding:0;"><i class="fas fa-file-export"></i></button>
+            </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+          <input type="date" id="dateFilter" />
+          <button id="filterLedgerBtn" class="btn btn-primary" style="width:60px; padding:0;"><i class="fas fa-search"></i></button>
+        </div>
+        <div id="ledgerItems"></div>
+      </div>
+    </section>
+
+    <section id="view-add-product" class="view hidden">
+        <div class="card view-animate">
+            <h3 class="card-title">New Item Registry</h3>
+            <label>Full Product Name</label>
+            <input type="text" id="newProductName" placeholder="e.g. Silk Saree Premium" />
+            <button id="saveProductBtn" class="btn btn-primary" style="margin-top:20px;">Register Product</button>
+        </div>
+    </section>
+
   </main>
 
-  <!-- FOOTER -->
-  <footer class="app-footer">
-    <div class="brand-credit">Developed By: Jignesh Thummar 2025-26</div>
-    <div class="social-links">
-      <a href="https://instagram.com/official.jignesh.1" target="_blank" aria-label="Instagram">
-        <i class="fab fa-instagram"></i>
-      </a>
-      <a href="https://wa.me/919825531314" target="_blank" aria-label="WhatsApp">
-        <i class="fab fa-whatsapp"></i>
-      </a>
-    </div>
-  </footer>
-
-  <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
     <a href="#" class="nav-item active" data-view="dashboard">
-      <i class="fas fa-chart-line"></i>
+      <i class="fas fa-home"></i>
       <span>Home</span>
     </a>
     <a href="#" class="nav-item" data-view="stock">
-      <i class="fas fa-warehouse"></i>
+      <i class="fas fa-layer-group"></i>
       <span>Stock</span>
     </a>
-    <a href="#" class="nav-item" data-view="add-stock">
-      <i class="fas fa-boxes"></i>
-      <span>Add Stock</span>
-    </a>
-    <a href="#" class="nav-item" data-view="return">
-      <i class="fas fa-undo"></i>
-      <span>Return</span>
-    </a>
-    <a href="#" class="nav-item" data-view="damage">
-      <i class="fas fa-exclamation-triangle"></i>
-      <span>Damage</span>
+    <a href="#" class="nav-item" data-view="sell">
+      <div class="fab-sale">
+        <i class="fas fa-shopping-bag"></i>
+      </div>
+      <span style="margin-top: 18px;">Sell</span>
     </a>
     <a href="#" class="nav-item" data-view="ledger">
-      <i class="fas fa-book"></i>
+      <i class="fas fa-history"></i>
       <span>Ledger</span>
+    </a>
+    <a href="#" class="nav-item" data-view="add-stock">
+        <i class="fas fa-plus-square"></i>
+        <span>Add</span>
     </a>
   </nav>
 
-  <!-- MODALS -->
-  <div id="importModal" class="modal">
-    <div class="modal-content">
-      <span class="close import-close">&times;</span>
-      <h3 style="margin-bottom:16px;"><i class="fas fa-file-import"></i> Import Backup</h3>
-      <p>Select a JSON backup file to restore your inventory.</p>
-      <input type="file" id="importFile" accept=".json" style="margin:16px 0;" />
-      <button id="confirmImportBtn" class="btn btn-primary" style="width:100%;">Restore Data</button>
-    </div>
-  </div>
-
   <div id="deleteModal" class="modal">
     <div class="modal-content">
-      <span class="close delete-close">&times;</span>
-      <h3 style="margin-bottom:16px;"><i class="fas fa-trash"></i> Delete Product</h3>
-      <p>Are you sure you want to delete <strong id="deleteProductName"></strong>?</p>
-      <button id="confirmDeleteBtn" class="btn btn-danger" style="width:100%;">Yes, Delete</button>
+      <h3 style="margin-bottom:15px;">Delete Product?</h3>
+      <p style="color: var(--text-dim); margin-bottom:25px;">This will remove "<span id="deleteProductName"></span>" and all its history permanently.</p>
+      <div style="display:flex; gap:12px;">
+        <button class="btn btn-ghost" onclick="document.getElementById('deleteModal').style.display='none'">Cancel</button>
+        <button id="confirmDeleteBtn" class="btn btn-danger">Delete</button>
+      </div>
     </div>
   </div>
 
-  <!-- Core logic -->
+  <div id="importModal" class="modal">
+    <div class="modal-content">
+      <h3 style="margin-bottom:15px;">Restore Data</h3>
+      <input type="file" id="importFile" accept=".json" style="margin-bottom:20px;" />
+      <button id="confirmImportBtn" class="btn btn-primary">Start Restore</button>
+    </div>
+  </div>
+
+  <footer style="text-align:center; padding: 20px; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 100px;">
+    Developed by Jignesh Thummar 2025-26
+  </footer>
+
   <script src="js/db.js"></script>
   <script src="js/ui.js"></script>
   <script>
