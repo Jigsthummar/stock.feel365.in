@@ -1,589 +1,666 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
-  <title>FEEL365 | Ultra Stock</title>
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0a0a0f" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
+<title>FEEL365 | Ultra Stock</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#0a0a0f" />
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
 
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <style>
-    :root {
-      --bg: #050508;
-      --surface: #12121a;
-      --surface-bright: #1c1c27;
-      --primary: #8b5cf6;
-      --primary-glow: rgba(139, 92, 246, 0.4);
-      --accent: #d946ef;
-      --text: #ffffff;
-      --text-dim: #94a3b8;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #f43f5e;
-      --glass: rgba(255, 255, 255, 0.03);
-      --glass-border: rgba(255, 255, 255, 0.08);
-      --grad: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
-    }
-
-    * { 
-      margin: 0; padding: 0; box-sizing: border-box; 
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Outfit', sans-serif;
-      line-height: 1.6;
-      overflow-x: hidden;
-      min-height: 100dvh;
-    }
-
-    /* ANIMATIONS */
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
-      to { opacity: 1; transform: translateY(0); filter: blur(0); }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; } to { opacity: 1; }
-    }
-
-    .view-animate { animation: slideIn 0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-
-    /* HEADER */
-    .app-header {
-      padding: 20px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(5, 5, 8, 0.8);
-      backdrop-filter: blur(20px);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      border-bottom: 1px solid var(--glass-border);
-    }
-
-    .logo {
-      font-size: 1.4rem;
-      font-weight: 800;
-      letter-spacing: -1px;
-      background: var(--grad);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    /* DASHBOARD WIDGETS */
-    .stats-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      padding: 20px;
-    }
-
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--glass-border);
-      padding: 20px;
-      border-radius: 24px;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
-
-    .stat-card::after {
-      content: '';
-      position: absolute;
-      top: -50%; left: -50%;
-      width: 200%; height: 200%;
-      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
-      opacity: 0.1;
-    }
-
-    .stat-card:active { transform: scale(0.96); }
-
-    .stat-value { font-size: 2rem; font-weight: 800; margin-top: 5px; }
-    .stat-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
-
-    /* CARDS */
-    .card {
-      background: var(--surface);
-      margin: 0 20px 20px;
-      padding: 24px;
-      border-radius: 28px;
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    /* INPUTS */
-    .input-group { margin-bottom: 20px; }
-    label { display: block; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 8px; margin-left: 4px; }
-    
-    input, select {
-      width: 100%;
-      background: var(--surface-bright);
-      border: 1px solid var(--glass-border);
-      padding: 16px;
-      border-radius: 16px;
-      color: white;
-      font-family: inherit;
-      font-size: 1rem;
-      outline: none;
-      transition: border 0.3s;
-    }
-
-    input:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
-
-    /* BUTTONS */
-    .btn {
-      width: 100%;
-      padding: 16px;
-      border-radius: 16px;
-      border: none;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: all 0.3s;
-    }
-
-    .btn-primary { background: var(--grad); color: white; box-shadow: 0 8px 20px var(--primary-glow); }
-    .btn-primary:active { transform: scale(0.98); filter: brightness(1.2); }
-    
-    .btn-ghost { background: var(--glass); color: white; border: 1px solid var(--glass-border); }
-    .btn-danger { background: rgba(244, 63, 94, 0.15); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.3); }
-
-    /* TABLE STYLES */
-    .stock-item {
-      background: var(--glass);
-      padding: 16px;
-      border-radius: 18px;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid transparent;
-      transition: all 0.3s;
-    }
-
-    .stock-item:hover { border-color: var(--glass-border); background: var(--surface-bright); }
-
-    .stock-info h4 { font-size: 1rem; font-weight: 600; }
-    .stock-info p { font-size: 0.8rem; color: var(--text-dim); }
-
-    .stock-badge {
-      padding: 6px 12px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.9rem;
-    }
-
-    .app-header .btn-ghost:hover {
-      background: var(--glass);
-      border-color: var(--glass-border);
-      transform: translateY(-2px);
-    }
-
-    /* Dashboard Stat Cards */
-.stat-card {
-  transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+  /* Custom Scrollbar for Chrome/Safari/Edge */
+::-webkit-scrollbar {
+    width: 6px;
 }
-.stat-card:active {
-  box-shadow: 0 0 0 2px var(--primary), 0 12px 30px var(--primary-glow);
-  transform: translateY(-2px) scale(0.99);
+::-webkit-scrollbar-track {
+    background: var(--bg);
 }
-
-/* Stock Items */
-.stock-item {
-  transition: all 0.2s ease;
+::-webkit-scrollbar-thumb {
+    background: var(--surface-bright);
+    border-radius: 10px;
 }
-.stock-item:active {
-  box-shadow: 0 0 0 2px var(--primary), 0 8px 20px rgba(139, 92, 246, 0.3);
-  background: var(--surface-bright) !important;
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
 }
-
-.view {
-  opacity: 0;
-  transition: opacity 0.25s ease;
-  pointer-events: none;
+:root {
+--bg: #050508;
+--surface: #12121a;
+--surface-bright: #1c1c27;
+--primary: #8b5cf6;
+--primary-glow: rgba(139, 92, 246, 0.4);
+--accent: #d946ef;
+--text: #ffffff;
+--text-dim: #94a3b8;
+--success: #10b981;
+--warning: #f59e0b;
+--danger: #f43f5e;
+--glass: rgba(255, 255, 255, 0.03);
+--glass-border: rgba(255, 255, 255, 0.08);
+--grad: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
 }
-.view[style*="display: block"] {
-  opacity: 1;
-  pointer-events: auto;
+* {
+margin: 0; padding: 0; box-sizing: border-box;
+-webkit-tap-highlight-color: transparent;
 }
-
+body {
+background: var(--bg);
+color: var(--text);
+font-family: 'Outfit', sans-serif;
+line-height: 1.6;
+overflow-x: hidden;
+min-height: 100dvh;
+}
+/* ANIMATIONS */
+@keyframes slideIn {
+from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
+to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@keyframes fadeIn {
+from { opacity: 0; } to { opacity: 1; }
+}
 @keyframes lowStockPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-  50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
 }
+.view-animate { animation: slideIn 0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
 .pulsing { animation: lowStockPulse 2s ease-in-out; }
-
-    /* BOTTOM NAV */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0; width: 100%;
-      background: rgba(18, 18, 26, 0.95);
-      backdrop-filter: blur(20px);
-      display: flex;
-      justify-content: space-around;
-      padding: 15px 10px calc(15px + env(safe-area-inset-bottom));
-      border-top: 1px solid var(--glass-border);
-      z-index: 1000;
-    }
-
-    .nav-item {
-      color: var(--text-dim);
-      text-decoration: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.7rem;
-      transition: all 0.3s;
-      flex: 1;
-    }
-
-    .nav-item.active { color: var(--primary); }
-    .nav-item i { font-size: 1.3rem; }
-
-    .fab-sale {
-      background: var(--grad);
-      width: 55px; height: 55px;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: -35px;
-      box-shadow: 0 10px 20px var(--primary-glow);
-      color: white !important;
-      transform: rotate(45deg);
-    }
-    .fab-sale i { transform: rotate(-45deg); }
-
-
-.app-credit {
-  text-align: center;
-  padding: 12px 20px 32px;
-  background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.03));
-  margin: 0 0 70px 0; /* ← Critical fix */
-  position: relative;
-  z-index: 999;
-  opacity: 0;
-  animation: fadeIn 1.2s ease-out forwards;
+/* HEADER */
+.app-header {
+padding: 20px 24px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+background: rgba(5, 5, 8, 0.8);
+backdrop-filter: blur(20px);
+position: sticky;
+top: 0;
+z-index: 1000;
+border-bottom: 1px solid var(--glass-border);
+}
+.logo {
+font-size: 1.4rem;
+font-weight: 800;
+letter-spacing: -1px;
+background: var(--grad);
+-webkit-background-clip: text;
+background-clip: text;
+-webkit-text-fill-color: transparent;
+cursor: pointer; /* 👈 adds hand cursor on desktop */
+user-select: none; /* prevents text selection on tap */
 }
 
-.credit-content {
+
+/* DASHBOARD WIDGETS */
+.stats-container {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 16px;
+padding: 20px;
+}
+.stat-card {
+background: var(--surface);
+border: 1px solid var(--glass-border);
+padding: 20px;
+border-radius: 24px;
+position: relative;
+overflow: hidden;
+transition: all 0.3s ease;
+}
+.stat-card::after {
+content: '';
+position: absolute;
+top: -50%; left: -50%;
+width: 200%; height: 200%;
+background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+opacity: 0.1;
+}
+.stat-card:active { transform: scale(0.96); }
+.stat-value { font-size: 2rem; font-weight: 800; margin-top: 5px; }
+.stat-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+/* CARDS */
+.card {
+background: var(--surface);
+margin: 0 20px 20px;
+padding: 24px;
+border-radius: 28px;
+border: 1px solid var(--glass-border);
+box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.card-title {
+font-size: 1.1rem;
+font-weight: 600;
+margin-bottom: 20px;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+/* INPUTS */
+.input-group { margin-bottom: 20px; }
+label { display: block; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 8px; margin-left: 4px; }
+input, select {
+width: 100%;
+background: var(--surface-bright);
+border: 1px solid var(--glass-border);
+padding: 16px;
+border-radius: 16px;
+color: white;
+font-family: inherit;
+font-size: 1rem;
+outline: none;
+transition: border 0.3s;
+}
+input:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+/* BUTTONS */
+.btn {
+width: 100%;
+padding: 16px;
+border-radius: 16px;
+border: none;
+font-weight: 600;
+font-size: 1rem;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+transition: all 0.3s;
+}
+.btn-primary { background: var(--grad); color: white; box-shadow: 0 8px 20px var(--primary-glow); }
+.btn-primary:active { transform: scale(0.98); filter: brightness(1.2); }
+.btn-ghost { background: var(--glass); color: white; border: 1px solid var(--glass-border); }
+.btn-danger { background: rgba(244, 63, 94, 0.15); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.3); }
+/* TABLE STYLES */
+.stock-item {
+background: var(--glass);
+padding: 16px;
+border-radius: 18px;
+margin-bottom: 12px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+border: 1px solid transparent;
+transition: all 0.3s;
+}
+.stock-item:hover { border-color: var(--glass-border); background: var(--surface-bright); }
+.stock-info h4 { font-size: 1rem; font-weight: 600; }
+.stock-info p { font-size: 0.8rem; color: var(--text-dim); }
+.stock-badge {
+padding: 6px 12px;
+border-radius: 10px;
+font-weight: 700;
+font-size: 0.9rem;
+}
+/* CURRENT STOCK PREVIEW */
+.stock-preview {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-top: 12px;
+  font-size: 0.95rem;
+  color: var(--text-dim);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6px;
-}
-
-.credit-text {
-  font-size: 0.8rem;
-  color: var(--text-dim);
-  letter-spacing: 0.5px;
-}
-
-.credit-name {
-  font-family: 'Outfit', sans-serif;
-  font-weight: 800;
-  font-size: 1.1rem;
-  background: linear-gradient(135deg, #8b5cf6, #d946ef);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -0.5px;
-  text-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
-}
-
-.credit-year {
-  font-size: 0.75rem;
-  color: var(--text-dim);
-  font-weight: 600;
-  opacity: 0.9;
-}
-
-/* Subtle animation on load */
-.app-credit {
+  gap: 8px;
   opacity: 0;
-  animation: fadeIn 1.2s ease-out forwards;
+  transform: translateY(4px);
+  transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+.stock-preview.show {
+opacity: 1;
+transform: translateY(0);
+}
+.stock-preview i {
+  font-size: 1.1rem;
 }
 
+.stock-preview.success {
+  color: var(--success);
+  box-shadow: 0 0 0 0 var(--success);
+  animation: stockGlow 1.5s ease-in-out;
+}
+@keyframes stockGlow {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
 
+/* BOTTOM NAV */
+.bottom-nav {
+    position: fixed;
+    bottom: 25px; /* Floating higher for a modern look */
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 40px);
+    max-width: 450px;
+    background: rgba(18, 18, 26, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    z-index: 2000;
+}
+.nav-item {
+    position: relative;
+    color: var(--text-dim);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 0;
+    flex: 1;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
 
-    /* MODALS */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(10px);
-      z-index: 2000;
-      padding: 20px;
-      align-items: center;
-      justify-content: center;
-    }
+.nav-item span {
+    font-size: 0.65rem;
+    font-weight: 600;
+    margin-top: 4px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    position: absolute;
+    bottom: 8px;
+}
+.nav-item.active {
+    color: #fff;
+}
 
-    .modal-content {
-      background: var(--surface);
-      width: 100%;
-      max-width: 400px;
-      border-radius: 30px;
-      padding: 30px;
-      border: 1px solid var(--glass-border);
-      animation: slideIn 0.3s ease;
-    }
+/* This creates the glowing 'pill' behind the active icon */
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    background: var(--grad);
+    border-radius: 18px;
+    filter: blur(12px); /* The "subtle glow" */
+    opacity: 0.5;
+    z-index: -1;
+    animation: pulseGlow 2s infinite alternate;
+}
 
-    .backup-alert {
-      background: var(--warning);
-      color: black;
-      margin: 15px 20px;
-      padding: 12px 20px;
-      border-radius: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 600;
-      font-size: 0.85rem;
-    }
+/* This is the solid background pill */
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    z-index: -1;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-  #view-container {
-  padding-bottom: 140px; /* ← Keep this */
-  min-height: calc(100dvh - 120px); /* ← Keep this */
-  }
+.nav-item.active i {
+    transform: translateY(-12px) scale(1.1);
+    color: #fff;
+    text-shadow: 0 0 10px var(--primary-glow);
+}
+.nav-item i {
+    font-size: 1.25rem;
+    z-index: 2;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s;
+}
+.nav-item.active span {
+    opacity: 1;
+    transform: translateY(0);
+    color: var(--primary);
+}
 
-    /* RANGE SLIDER */
-    input[type="range"] { height: 6px; background: var(--surface-bright); }
-  </style>
+/* ANIMATION: Subtle Breathing Glow */
+@keyframes pulseGlow {
+    0% { transform: scale(0.95); opacity: 0.4; filter: blur(10px); }
+    100% { transform: scale(1.1); opacity: 0.6; filter: blur(15px); }
+}
+/* MICRO-INTERACTION: Tap ripple effect */
+.nav-item:active i {
+    transform: scale(0.8);
+}
+
+.fab-sale {
+background: var(--grad);
+width: 55px; height: 55px;
+border-radius: 20px;
+display: flex;
+align-items: center;
+justify-content: center;
+margin-top: -35px;
+box-shadow: 0 10px 20px var(--primary-glow);
+color: white !important;
+transform: rotate(45deg);
+}
+.fab-sale i { transform: rotate(-45deg); }
+.app-credit {
+text-align: center;
+padding: 12px 20px 32px;
+background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.03));
+margin: 0 0 70px 0;
+position: relative;
+z-index: 999;
+opacity: 0;
+animation: fadeIn 1.2s ease-out forwards;
+}
+.credit-content {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 6px;
+}
+.credit-text {
+font-size: 0.8rem;
+color: var(--text-dim);
+letter-spacing: 0.5px;
+}
+.credit-name {
+font-family: 'Outfit', sans-serif;
+font-weight: 800;
+font-size: 1.1rem;
+background: linear-gradient(135deg, #8b5cf6, #d946ef);
+-webkit-background-clip: text;
+background-clip: text;
+-webkit-text-fill-color: transparent;
+letter-spacing: -0.5px;
+text-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
+}
+.credit-year {
+font-size: 0.75rem;
+color: var(--text-dim);
+font-weight: 600;
+opacity: 0.9;
+}
+/* MODALS */
+.modal {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.8);
+backdrop-filter: blur(10px);
+z-index: 2000;
+padding: 20px;
+align-items: center;
+justify-content: center;
+}
+.modal-content {
+background: var(--surface);
+width: 100%;
+max-width: 400px;
+border-radius: 30px;
+padding: 30px;
+border: 1px solid var(--glass-border);
+animation: slideIn 0.3s ease;
+}
+.backup-alert {
+background: var(--warning);
+color: black;
+margin: 15px 20px;
+padding: 12px 20px;
+border-radius: 15px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+font-weight: 600;
+font-size: 0.85rem;
+}
+#view-container {
+padding-bottom: 120px;
+
+}
+</style>
 </head>
 <body>
-
-  <header class="app-header">
-  <div class="logo">FEEL365</div>
-  <div style="display:flex; gap:12px;">
-    <a href="https://instagram.com/official.jignesh.1" target="_blank" class="btn btn-ghost" 
-       style="width: 45px; height: 45px; padding:0; border-radius: 12px; display:flex; align-items:center; justify-content:center; text-decoration:none;">
-      <i class="fab fa-instagram" style="color: #E1306C; font-size: 1.2rem;"></i>
-    </a>
-    <button id="whatsappStockBtn" class="btn btn-ghost" style="width: 45px; height: 45px; padding:0; border-radius: 12px;">
-      <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.2rem;"></i>
-    </button>
-  </div>
+<header class="app-header">
+<div class="logo">FEEL365</div>
+<div style="display:flex; gap:12px;">
+<a href="https://instagram.com/official.jignesh.1" target="_blank" class="btn btn-ghost"
+style="width: 45px; height: 45px; padding:0; border-radius: 12px; display:flex; align-items:center; justify-content:center; text-decoration:none;">
+<i class="fab fa-instagram" style="color: #E1306C; font-size: 1.2rem;"></i>
+</a>
+<button id="whatsappStockBtn" class="btn btn-ghost" style="width: 45px; height: 45px; padding:0; border-radius: 12px;">
+<i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.2rem;"></i>
+</button>
+</div>
 </header>
-
-  <div id="backupAlert" class="backup-alert hidden">
-    <span>⚠️ Backup is overdue</span>
-    <button id="backupNowBtn" style="border:none; background:white; padding:5px 10px; border-radius:8px; font-weight:bold;">Export</button>
-  </div>
-
-  <main id="view-container">
-    
-    <section id="view-dashboard" class="view view-animate">
-      <div class="stats-container">
-        <div class="stat-card" id="go-to-stock">
-          <div class="stat-label">Stock</div>
-          <div class="stat-value" id="totalProducts">0</div>
-        </div>
-        <div class="stat-card" id="go-to-sales">
-          <div class="stat-label">Sales Today</div>
-          <div class="stat-value" id="todaySales" style="color: var(--success);">0</div>
-        </div>
-      </div>
-      
-      <div class="card">
-        <h3 class="card-title"><i class="fas fa-fire" style="color: var(--accent);"></i> Hot Products</h3>
-        <div id="bestSellingChart" style="min-height: 200px;"></div>
-      </div>
-
-      <div class="card">
-        <h3 class="card-title"><i class="fas fa-plus-circle"></i> Quick Actions</h3>
-        <button class="btn btn-primary" id="flip-add-product" style="margin-bottom: 12px;">
-          <i class="fas fa-tag"></i> Create New Product
-        </button>
-      </div>
-    </section>
-
-    <section id="view-stock" class="view hidden">
-      <div class="card">
-        <h3 class="card-title">Inventory Control</h3>
-        <div class="input-group">
-          <input type="text" id="stockSearch" placeholder="Search by name..." />
-        </div>
-        <div class="input-group" style="display:flex; justify-content:space-between; align-items:end; gap:10px;">
-  <div style="flex:1;">
-    <label>Low Stock Warning: <span id="thresholdValue" style="color: var(--warning);">5</span></label>
-    <input type="range" id="lowStockThreshold" min="1" max="50" value="5" style="width:100%;" />
-  </div>
-  <button id="whatsappStockReportBtn" class="btn btn-ghost" style="width:45px; height:45px; padding:0; border-radius:12px; background:rgba(37,211,102,0.1); border-color:rgba(37,211,102,0.3);">
-    <i class="fab fa-whatsapp" style="color:#25D366; font-size:1.2rem;"></i>
-  </button>
+<div id="backupAlert" class="backup-alert hidden">
+<span>⚠️ Backup is overdue</span>
+<button id="backupNowBtn" style="border:none; background:white; padding:5px 10px; border-radius:8px; font-weight:bold;">Export</button>
 </div>
-        
-        <div id="stockListContainer" style="margin-top: 20px;">
-          </div>
-      </div>
-    </section>
-
-    <section id="view-sell" class="view hidden">
-      <div class="card view-animate">
-        <h3 class="card-title"><i class="fas fa-shopping-cart"></i> New Sale</h3>
-        <div class="input-group">
-          <label>Product</label>
-          <select id="sellProduct"></select>
-        </div>
-        <div class="input-group">
-          <label>Quantity</label>
-          <input type="number" id="sellQty" placeholder="0" />
-        </div>
-        <button id="saveSellBtn" class="btn btn-primary">Process Sale</button>
-      </div>
-    </section>
-
-    <section id="view-add-stock" class="view hidden">
-      <div class="card view-animate">
-        <h3 class="card-title"><i class="fas fa-box-open"></i> Refill Stock</h3>
-        <div class="input-group">
-          <label>Product</label>
-          <select id="addStockProduct"></select>
-        </div>
-        <div class="input-group">
-          <label>Quantity to Add</label>
-          <input type="number" id="addStockQty" placeholder="0" />
-        </div>
-        <button id="saveAddStockBtn" class="btn btn-primary">Add to Inventory</button>
-      </div>
-    </section>
-
-    <section id="view-return" class="view hidden">
-        <div class="card view-animate">
-          <h3 class="card-title">Returns & Exchanges</h3>
-          <select id="returnProduct"></select>
-          <input type="number" id="returnQty" placeholder="Qty" style="margin: 15px 0;" />
-          <button id="saveReturnBtn" class="btn btn-primary">Accept Return</button>
-        </div>
-    </section>
-
-    <section id="view-damage" class="view hidden">
-        <div class="card view-animate">
-          <h3 class="card-title">Report Damage</h3>
-          <select id="damageProduct"></select>
-          <input type="number" id="damageQty" placeholder="Qty" style="margin: 15px 0;" />
-          <button id="saveDamageBtn" class="btn btn-danger">Record Loss</button>
-        </div>
-    </section>
-
-    <section id="view-ledger" class="view hidden">
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-  <h3 class="card-title" style="margin:0;">History</h3>
-  <div style="display:flex; gap:8px;">
-    <button id="whatsappLedgerBtn" class="btn btn-ghost" style="width:40px; height:40px; padding:0; background:rgba(37,211,102,0.1); border-color:rgba(37,211,102,0.3);">
-      <i class="fab fa-whatsapp" style="color:#25D366;"></i>
-    </button>
-    <button id="importLedgerBtn" class="btn btn-ghost" style="width:40px; height:40px; padding:0;"><i class="fas fa-file-import"></i></button>
-    
-    <button id="exportLedgerBtn" class="btn btn-ghost" style="width:40px; height:40px; padding:0;"><i class="fas fa-file-export"></i></button>
+<main id="view-container">
+<section id="view-dashboard" class="view view-animate">
+<div class="stats-container">
+<div class="stat-card" id="go-to-stock">
+<div class="stat-label">Stock</div>
+<div class="stat-value" id="totalProducts">0</div>
+</div>
+<div class="stat-card" id="go-to-sales">
+<div class="stat-label">Sales Today</div>
+<div class="stat-value" id="todaySales" style="color: var(--success);">0</div>
+</div>
+</div>
+<div class="card">
+<h3 class="card-title"><i class="fas fa-fire" style="color: var(--accent);"></i> Hot Products</h3>
+<div id="bestSellingChart" style="min-height: 200px;"></div>
+</div>
+<div class="card">
+<h3 class="card-title"><i class="fas fa-plus-circle"></i> Quick Actions</h3>
+<button class="btn btn-primary" id="flip-add-product" style="margin-bottom: 12px;">
+<i class="fas fa-tag"></i> Create New Product
+</button>
+</div>
+</section>
+<section id="view-stock" class="view hidden">
+<div class="card">
+<h3 class="card-title">Inventory Control</h3>
+<div class="input-group">
+<input type="text" id="stockSearch" placeholder="Search by name..." />
+</div>
+<div style="display:flex; justify-content:flex-end; margin-top:10px;">
+<button id="whatsappStockReportBtn" class="btn btn-ghost" style="width:45px; height:45px; padding:0; border-radius:12px; background:rgba(37,211,102,0.1); border-color:rgba(37,211,102,0.3);">
+<i class="fab fa-whatsapp" style="color:#25D366; font-size:1.2rem;"></i>
+</button>
+<!-- EDIT PRODUCT MODAL -->
+<div id="editProductModal" class="modal">
+  <div class="modal-content">
+    <h3 style="margin-bottom:15px;">Edit Product</h3>
+    <p><strong id="editProductName"></strong></p>
+    <div class="input-group">
+      <label>Category</label>
+      <input type="text" id="editProductCategory" placeholder="e.g. Sarees" />
+    </div>
+    <div class="input-group">
+      <label>Low Stock Alert (units)</label>
+      <input type="number" id="editProductThreshold" min="0" value="5" />
+    </div>
+    <div style="display:flex; gap:12px; margin-top:20px;">
+      <button class="btn btn-primary" id="saveEditProductBtn">Save Changes</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('editProductModal').style.display='none'">Cancel</button>
+    </div>
   </div>
 </div>
-        <div style="display:flex; gap:10px; margin-bottom:20px;">
-          <input type="date" id="dateFilter" />
-          <button id="filterLedgerBtn" class="btn btn-primary" style="width:60px; padding:0;"><i class="fas fa-search"></i></button>
-        </div>
-        <div id="ledgerItems"></div>
-      </div>
-    </section>
+</div>
 
-    <section id="view-add-product" class="view hidden">
-        <div class="card view-animate">
-            <h3 class="card-title">New Item Registry</h3>
-            <label>Full Product Name</label>
-            <input type="text" id="newProductName" placeholder="e.g. Silk Saree Premium" />
-            <button id="saveProductBtn" class="btn btn-primary" style="margin-top:20px;">Register Product</button>
-        </div>
-    </section>
+<div id="stockListContainer" style="margin-top: 20px;"></div>
 
-  </main>
+</section>
+<section id="view-sell" class="view hidden">
+<div class="card view-animate">
+<h3 class="card-title"><i class="fas fa-shopping-cart"></i> New Sale</h3>
+<div class="input-group">
+<label>Category</label>
+<select id="sellCategory">
+<option value="">— View All —</option>
+</select>
+</div>
+<div class="input-group">
+<label>Product</label>
+<select id="sellProduct"></select>
+</div>
+<div id="sellCurrentStock" class="stock-preview hidden"></div>
+<div class="input-group">
+<label>Quantity</label>
+<input type="number" id="sellQty" placeholder="0" />
+</div>
+<button id="saveSellBtn" class="btn btn-primary">Process Sale</button>
+</div>
+</section>
+<section id="view-add-stock" class="view hidden">
+<div class="card view-animate">
+<h3 class="card-title"><i class="fas fa-box-open"></i> Refill Stock</h3>
+<div class="input-group">
+<label>Category</label>
+<select id="addStockCategory">
+<option value="">— View All —</option>
+</select>
+</div>
+<div class="input-group">
+<label>Product</label>
+<select id="addStockProduct"></select>
 
-  <nav class="bottom-nav">
+</div>
+<div id="addStockCurrentStock" class="stock-preview hidden"></div>
+
+<div class="input-group">
+<label>Quantity to Add</label>
+<input type="number" id="addStockQty" placeholder="0" />
+</div>
+<div id="addStockLowWarning" class="stock-preview hidden" style="background: rgba(245, 158, 11, 0.15); color: var(--warning);"></div>
+<button id="saveAddStockBtn" class="btn btn-primary">Add to Inventory</button>
+</div>
+</section>
+<section id="view-return" class="view hidden">
+<div class="card view-animate">
+<h3 class="card-title">Returns & Exchanges</h3>
+<div class="input-group">
+<label>Category</label>
+<select id="returnCategory">
+<option value="">— View All —</option>
+</select>
+</div>
+<div class="input-group">
+<label>Product</label>
+<select id="returnProduct"></select>
+</div>
+<input type="number" id="returnQty" placeholder="Qty" style="margin: 15px 0;" />
+<button id="saveReturnBtn" class="btn btn-primary">Accept Return</button>
+</div>
+</section>
+<section id="view-damage" class="view hidden">
+<div class="card view-animate">
+<h3 class="card-title">Report Damage</h3>
+<div class="input-group">
+<label>Category</label>
+<select id="damageCategory">
+<option value="">— View All —</option>
+</select>
+</div>
+<div class="input-group">
+<label>Product</label>
+<select id="damageProduct"></select>
+
+</div>
+<div id="damageCurrentStock" class="stock-preview hidden"></div>
+
+<input type="number" id="damageQty" placeholder="Qty" style="margin: 15px 0;" />
+<button id="saveDamageBtn" class="btn btn-danger">Record Loss</button>
+</div>
+</section>
+<section id="view-ledger" class="view hidden">
+<div class="card">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+<h3 class="card-title" style="margin:0;">History</h3>
+<div style="display:flex; gap:8px;">
+<button id="whatsappLedgerBtn" class="btn btn-ghost" style="width:40px; height:40px; padding:0; background:rgba(37,211,102,0.1); border-color:rgba(37,211,102,0.3);">
+<i class="fab fa-whatsapp" style="color:#25D366;"></i>
+</button>
+<button id="importLedgerBtn" class="btn btn-ghost" style="width:40px; height:40px; padding:0;"><i class="fas fa-file-import"></i></button>
+<button id="exportLedgerBtn" class="btn btn-ghost" style="width:40px; height:40px; padding:0;"><i class="fas fa-file-export"></i></button>
+</div>
+</div>
+<div style="display:flex; gap:10px; margin-bottom:20px;">
+<input type="date" id="dateFilter" />
+<button id="filterLedgerBtn" class="btn btn-primary" style="width:60px; padding:0;"><i class="fas fa-search"></i></button>
+</div>
+<div id="ledgerItems"></div>
+</div>
+</section>
+<section id="view-add-product" class="view hidden">
+<div class="card view-animate">
+<h3 class="card-title">New Item Registry</h3>
+<label>Full Product Name</label>
+<input type="text" id="newProductName" placeholder="e.g. Silk Saree Premium" />
+<label>Category (optional)</label>
+<select id="newProductCategory">
+  <option value="">— Select or type new —</option>
+</select>
+<input type="text" id="newCategoryInput" placeholder="Or type a new category" style="display:none; margin-top:6px;" />
+<div id="existingCategoriesHint" style="font-size:0.8rem; color:var(--text-dim); margin-top:4px; margin-left:4px;"></div>
+<label>Low Stock Alert (units)</label>
+<input type="number" id="newProductThreshold" placeholder="e.g. 5" value="5" min="0" />
+<button id="saveProductBtn" class="btn btn-primary" style="margin-top:20px;">Register Product</button>
+</div>
+</section>
+</main>
+<nav class="bottom-nav">
   <a href="#" class="nav-item active" data-view="dashboard">
-    <i class="fas fa-home"></i>
-    <span>Home</span>
+    <i class="fas fa-house"></i> <span>Home</span>
   </a>
   <a href="#" class="nav-item" data-view="add-stock">
-    <i class="fas fa-boxes"></i>
-    <span>Add Stock</span>
+    <i class="fas fa-plus-circle"></i>
+    <span>Refill</span>
   </a>
   <a href="#" class="nav-item" data-view="return">
-    <i class="fas fa-undo"></i>
+    <i class="fas fa-arrow-rotate-left"></i>
     <span>Return</span>
   </a>
   <a href="#" class="nav-item" data-view="damage">
-    <i class="fas fa-exclamation-triangle"></i>
-    <span>Damage</span>
-  </a>
-  <a href="#" class="nav-item" data-view="stock">
-    <i class="fas fa-layer-group"></i>
-    <span>Stock</span>
+    <i class="fas fa-triangle-exclamation"></i> <span>Loss</span>
   </a>
   <a href="#" class="nav-item" data-view="ledger">
-    <i class="fas fa-history"></i>
-    <span>Ledger</span>
+    <i class="fas fa-chart-pie"></i>
+    <span>History</span>
   </a>
 </nav>
-
-  <div id="deleteModal" class="modal">
-    <div class="modal-content">
-      <h3 style="margin-bottom:15px;">Delete Product?</h3>
-      <p style="color: var(--text-dim); margin-bottom:25px;">This will remove "<span id="deleteProductName"></span>" and all its history permanently.</p>
-      <div style="display:flex; gap:12px;">
-        <button class="btn btn-ghost" onclick="document.getElementById('deleteModal').style.display='none'">Cancel</button>
-        <button id="confirmDeleteBtn" class="btn btn-danger">Delete</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="importModal" class="modal">
-    <div class="modal-content">
-      <h3 style="margin-bottom:15px;">Restore Data</h3>
-      <input type="file" id="importFile" accept=".json" style="margin-bottom:20px;" />
-      <button id="confirmImportBtn" class="btn btn-primary">Start Restore</button>
-    </div>
-  </div>
-
- <footer class="app-credit">
-  <div class="credit-content">
-    <span class="credit-text">Crafted with ❤️ by</span>
-    <span class="credit-name">Jignesh Thummar</span>
-    <span class="credit-year">2025–26</span>
-  </div>
+<div id="deleteModal" class="modal">
+<div class="modal-content">
+<h3 style="margin-bottom:15px;">Delete Product?</h3>
+<p style="color: var(--text-dim); margin-bottom:25px;">This will remove "<span id="deleteProductName"></span>" and all its history permanently.</p>
+<div style="display:flex; gap:12px;">
+<button class="btn btn-ghost" onclick="document.getElementById('deleteModal').style.display='none'">Cancel</button>
+<button id="confirmDeleteBtn" class="btn btn-danger">Delete</button>
+</div>
+</div>
+</div>
+<div id="importModal" class="modal">
+<div class="modal-content">
+<h3 style="margin-bottom:15px;">Restore Data</h3>
+<input type="file" id="importFile" accept=".json" style="margin-bottom:20px;" />
+<button id="confirmImportBtn" class="btn btn-primary">Start Restore</button>
+</div>
+</div>
+<footer class="app-credit">
+<div class="credit-content">
+<span class="credit-text">Crafted with ❤️ by</span>
+<span class="credit-name">Jignesh Thummar</span>
+<span class="credit-year">2025–26</span>
+</div>
 </footer>
-
-  <script src="js/db.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js');
-    }
-  </script>
+<script src="js/db.js"></script>
+<script src="js/ui.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('/sw.js');
+}
+</script>
 </body>
 </html>
