@@ -127,3 +127,35 @@ footer {
   .dashboard { grid-template-columns: 1fr; }
   .actions .btn { display: block; width: 80%; margin: 8px auto; }
 }
+
+
+
+/* CURRENT STOCK PREVIEW */
+.stock-preview {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-top: 10px;
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.stock-preview.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.stock-preview.success span {
+  color: var(--success);
+}
+.stock-preview.out-of-stock span {
+  color: var(--danger);
+}
+.stock-preview i {
+color: var(--success);
+}
