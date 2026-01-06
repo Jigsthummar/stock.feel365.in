@@ -243,15 +243,15 @@ function renderStockTable() {
     rightDiv.appendChild(editBtn);
 
     const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'btn btn-danger delete-btn';
-    deleteBtn.style.padding = '6px';
-    deleteBtn.style.fontSize = '0.85rem';
-    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-    deleteBtn.onclick = () => {
-      window.currentDeleteProduct = name;
-      document.getElementById('deleteProductName').textContent = name;
-      document.getElementById('deleteModal').style.display = 'flex';
-    };
+deleteBtn.className = 'btn btn-danger delete-btn';
+deleteBtn.style.padding = '6px';
+deleteBtn.style.fontSize = '0.85rem';
+deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+deleteBtn.onclick = () => {
+  window.currentDeleteProduct = name;
+  document.getElementById('deleteProductName').textContent = name;
+  document.getElementById('deleteModal').style.display = 'flex';
+};
     rightDiv.appendChild(deleteBtn);
 
     // Assemble the row (3-column layout)
@@ -607,17 +607,19 @@ document.getElementById('saveProductBtn')?.addEventListener('click', () => {
   // ======================
 
   document.getElementById('confirmDeleteBtn')?.addEventListener('click', () => {
-    if (currentDeleteProduct && DB.products.has(currentDeleteProduct)) {
-      DB.products.delete(currentDeleteProduct);
-      DB.productCategories.delete(currentDeleteProduct);
-      DB.productLowStockThresholds.delete(currentDeleteProduct);
-      DB.save();
-      alert(`✅ Deleted "${currentDeleteProduct}".`);
-      renderStockTable();
-      updateDashboard();
-    }
-    document.getElementById('deleteModal').style.display = 'none';
-  });
+  const productName = window.currentDeleteProduct; // 👈 Use global
+  if (productName && DB.products.has(productName)) {
+    DB.products.delete(productName);
+    DB.productCategories.delete(productName);
+    DB.productLowStockThresholds.delete(productName);
+    DB.save();
+    alert(`✅ Deleted "${productName}".`);
+    renderStockTable();
+    updateDashboard();
+  }
+  document.getElementById('deleteModal').style.display = 'none';
+  window.currentDeleteProduct = null; // 👈 Clean up
+});
 
   document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', e => {
