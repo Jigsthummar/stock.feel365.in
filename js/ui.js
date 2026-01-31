@@ -26,17 +26,25 @@ function lockApp() {
 // Unlock the app
 function unlockApp() {
   const pin = document.getElementById('pinInput').value;
+  const errorEl = document.getElementById('pinError');
+  
   if (pin === PIN) {
     localStorage.removeItem('appLocked');
     document.getElementById('lockScreen').style.display = 'none';
     document.body.style.overflow = '';
-    resetIdleTimer(); // Restart timer
+    resetIdleTimer();
   } else {
-    document.getElementById('pinError').textContent = '❌ Incorrect PIN';
+    // Two-line plain text error (no HTML, no links)
+    errorEl.innerHTML = `
+  <span style="color: var(--danger);">❌ Incorrect password.</span><br>
+  <span class="whatsapp-hint" style="color: var(--success);">Click below WhatsApp button.</span>
+`;
+    
     document.getElementById('pinInput').value = '';
     document.getElementById('pinInput').focus();
   }
 }
+
 
 
   // Safe Hard Refresh (clears SW + cache, keeps localStorage)
@@ -755,6 +763,9 @@ document.getElementById('saveProductBtn')?.addEventListener('click', () => {
 if (localStorage.getItem('appLocked') === 'true') {
   lockApp();
 }
+
+
+
 
   // ======================
   // REPORTS
