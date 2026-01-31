@@ -682,13 +682,37 @@ style="width: 45px; height: 45px; padding:0; border-radius: 12px; display:flex; 
 </nav>
 
 <!-- IDLE LOCK SCREEN -->
-<div id="lockScreen" class="modal" style="display:none; background:#000000;">
-  <div style="background:var(--surface); padding:30px; border-radius:24px; width:90%; max-width:350px; text-align:center;">
-    <h3 style="margin-bottom:20px; color:var(--text);">🔒 App Locked</h3>
+<div id="lockScreen" class="modal" style="display:none; background:var(--bg);">
+  <div style="background:var(--surface); padding:30px; border-radius:24px; width:90%; max-width:350px; text-align:center; position:relative;">
+    <!-- Logo -->
+    <div class="logo" style="font-size:1.6rem; margin-bottom:20px;">FEEL365</div>
+    
+    <!-- PIN Input -->
     <input type="password" id="pinInput" placeholder="Enter PIN" maxlength="4" 
            style="width:100%; padding:16px; border-radius:16px; border:1px solid var(--glass-border); background:var(--surface-bright); color:white; font-size:1.5rem; text-align:center; letter-spacing:8px;" />
-    <button id="unlockBtn" class="btn btn-primary" style="margin-top:20px;">Unlock</button>
+    <button id="unlockBtn" class="btn btn-primary" style="margin-top:20px; width:100%;">Unlock</button>
     <p id="pinError" style="color:var(--danger); margin-top:10px; min-height:20px;"></p>
+
+    <!-- Social Icons -->
+    <div style="display:flex; justify-content:center; gap:16px; margin-top:20px;">
+      <a href="https://instagram.com/official.jignesh.1" target="_blank" class="btn btn-ghost"
+         style="width:40px; height:40px; padding:0; border-radius:12px; display:flex; align-items:center; justify-content:center; text-decoration:none;">
+        <i class="fab fa-instagram" style="color: #E1306C; font-size: 1.2rem;"></i>
+      </a>
+      <button id="lockWhatsappBtn" class="btn btn-ghost"
+              style="width:40px; height:40px; padding:0; border-radius:12px;">
+        <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.2rem;"></i>
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-credit" style="margin-top:25px; opacity:1; animation:none;">
+      <div class="credit-content">
+        <span class="credit-text">Crafted with ❤️ by</span>
+        <span class="credit-name">Jignesh Thummar</span>
+        <span class="credit-year">2025–26</span>
+      </div>
+    </footer>
   </div>
 </div>
 
