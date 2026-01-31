@@ -15,6 +15,7 @@ function resetIdleTimer() {
 
 // Lock the app
 function lockApp() {
+  localStorage.setItem('appLocked', 'true'); // 
   document.getElementById('lockScreen').style.display = 'flex';
   document.body.style.overflow = 'hidden';
   document.getElementById('pinInput').value = '';
@@ -26,6 +27,7 @@ function lockApp() {
 function unlockApp() {
   const pin = document.getElementById('pinInput').value;
   if (pin === PIN) {
+    localStorage.removeItem('appLocked');
     document.getElementById('lockScreen').style.display = 'none';
     document.body.style.overflow = '';
     resetIdleTimer(); // Restart timer
@@ -555,6 +557,10 @@ document.getElementById('pinInput')?.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') unlockApp();
 });
 
+document.getElementById('lockWhatsappBtn')?.addEventListener('click', () => {
+  window.open('https://wa.me/919825531314', '_blank');
+});
+
 document.getElementById('hardRefreshBtn')?.addEventListener('click', hardRefresh);
     // Add Product
 document.getElementById('saveProductBtn')?.addEventListener('click', () => {
@@ -743,6 +749,12 @@ document.getElementById('saveProductBtn')?.addEventListener('click', () => {
       });
     }
   });
+
+
+  // Check if app was locked before refresh
+if (localStorage.getItem('appLocked') === 'true') {
+  lockApp();
+}
 
   // ======================
   // REPORTS
