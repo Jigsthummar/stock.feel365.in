@@ -1,7 +1,61 @@
 // js/ui.js — Fully Fixed and Complete
 document.addEventListener('DOMContentLoaded', () => {
   let currentDeleteProduct = null;
-  let apexChart = null;
+
+
+  let idleTimeout;
+const IDLE_TIME = 1 * 60 * 1000; // 5 minutes
+const PIN = '5544';
+
+// Reset idle timer on user activity
+function resetIdleTimer() {
+  clearTimeout(idleTimeout);
+  idleTimeout = setTimeout(lockApp, IDLE_TIME);
+}
+
+// Lock the app
+function lockApp() {
+  document.getElementById('lockScreen').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('pinInput').value = '';
+  document.getElementById('pinError').textContent = '';
+  document.getElementById('pinInput').focus();
+}
+
+// Unlock the app
+function unlockApp() {
+  const pin = document.getElementById('pinInput').value;
+  if (pin === PIN) {
+    document.getElementById('lockScreen').style.display = 'none';
+    document.body.style.overflow = '';
+    resetIdleTimer(); // Restart timer
+  } else {
+    document.getElementById('pinError').textContent = '❌ Incorrect PIN';
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinInput').focus();
+  }
+}
+
+
+  // Safe Hard Refresh (clears SW + cache, keeps localStorage)
+function hardRefresh() {
+  // Unregister all service workers
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+      registrations.forEach(reg => reg.unregister());
+    });
+  }
+
+  // Clear all caches
+  if ('caches' in window) {
+    caches.keys().then(names => {
+      names.forEach(name => caches.delete(name));
+    });
+  }
+
+  // Force reload from server (bypass cache)
+  window.location.replace(window.location.href);
+}
 
   // ======================
   // CURRENT STOCK PREVIEW
@@ -31,6 +85,18 @@ document.addEventListener('DOMContentLoaded', () => {
     select.addEventListener('change', showPreview);
     showPreview(); // initial
   }
+
+// Re-show current stock preview in active view
+function refreshStockPreviews() {
+  const currentView = document.querySelector('.view[style*="display: block"]')?.id?.replace('view-', '');
+  if (currentView === 'add-stock') {
+    updateStockPreview('addStockProduct', 'addStockCurrentStock');
+  } else if (currentView === 'sell') {
+    updateStockPreview('sellProduct', 'sellCurrentStock');
+  } else if (currentView === 'damage') {
+    updateStockPreview('damageProduct', 'damageCurrentStock');
+  }
+}
 
 function showEditProductModal(productName) {
   document.getElementById('editProductName').textContent = productName;
@@ -145,7 +211,7 @@ function saveEditedProduct() {
   function updateDashboard() {
     document.getElementById('totalProducts').textContent = DB.products.size;
     document.getElementById('todaySales').textContent = DB.getTodaySales();
-    renderBestSellingChart();
+
   }
 
 function renderStockTable() {
@@ -440,6 +506,32 @@ function setupAddProductCategoryInput() {
     }
   }
 
+  // Keyboard shortcuts
+function setupKeyboardShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    if (!e.altKey) return;
+    e.preventDefault();
+
+    switch (e.key.toLowerCase()) {
+      case 's': switchView('sell'); break;          // Alt+S → Sell
+      case 'a': switchView('add-stock'); break;     // Alt+A → Add Stock
+      case 'i': switchView('stock'); break;         // Alt+I → Inventory
+      case 'd': switchView('damage'); break;        // Alt+D → Damage
+      case 'h': switchView('ledger'); break;        // Alt+H → History
+      case 'r': switchView('return'); break;        // Alt+R → Returns
+      case 'n': switchView('add-product'); break;   // Alt+N → New Product
+      case 'w': 
+        document.getElementById('whatsappStockBtn')?.click();
+        break; // Alt+W → WhatsApp
+      case 'home': 
+        switchView('dashboard'); 
+        break; // Alt+Home → Dashboard
+    }
+  });
+}
+
+  
+
   // ======================
   // UTILITIES
   // ======================
@@ -457,6 +549,13 @@ function setupAddProductCategoryInput() {
   // ======================
 
   function attachActionListeners() {
+// Add inside attachActionListeners()
+document.getElementById('unlockBtn')?.addEventListener('click', unlockApp);
+document.getElementById('pinInput')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') unlockApp();
+});
+
+document.getElementById('hardRefreshBtn')?.addEventListener('click', hardRefresh);
     // Add Product
 document.getElementById('saveProductBtn')?.addEventListener('click', () => {
 
@@ -519,6 +618,7 @@ document.getElementById('saveProductBtn')?.addEventListener('click', () => {
       document.getElementById('addStockQty').value = '';
       updateDashboard();
       renderStockTable();
+      refreshStockPreviews(); // 👈 ADD THIS
     });
 
     // Sell
@@ -534,6 +634,7 @@ document.getElementById('saveProductBtn')?.addEventListener('click', () => {
       document.getElementById('sellQty').value = '';
       updateDashboard();
       renderStockTable();
+      refreshStockPreviews(); // 👈 ADD THIS
     });
 
     // Return
@@ -564,6 +665,7 @@ document.getElementById('saveProductBtn')?.addEventListener('click', () => {
       document.getElementById('damageQty').value = '';
       updateDashboard();
       renderStockTable();
+      refreshStockPreviews(); // 👈 ADD THIS
     });
 
     // WhatsApp
@@ -772,33 +874,12 @@ function whatsappStockReport() {
   // CHART
   // ======================
 
-  function renderBestSellingChart() {
-    const data = DB.getBestSelling();
-    const el = document.getElementById('bestSellingChart');
-    if (apexChart) apexChart.destroy();
-    if (data.length === 0) {
-      el.innerHTML = '<p style="color:#a1a1aa;text-align:center;padding:20px;">No sales yet</p>';
-      return;
-    }
-    const options = {
-      chart: { type: 'bar', height: 200, animations: { enabled: true } },
-      series: [{ name: 'Units', data: data.map(d => d[1]) }],
-      xaxis: {
-        categories: data.map(d => d[0].length > 15 ? d[0].substring(0,12)+'...' : d[0]),
-        labels: { style: { colors: '#a1a1aa', fontSize: '11px' } }
-      },
-      yaxis: { min: 0, labels: { style: { colors: '#a1a1aa' } } },
-      plotOptions: {
-        bar: { borderRadius: 6, columnWidth: '60%', dataLabels: { position: 'top' } }
-      },
-      dataLabels: { enabled: true, style: { colors: ['#f5f3ff'] } },
-      colors: ['#a855f7'],
-      grid: { borderColor: '#27272a', strokeDashArray: 3 },
-      tooltip: { theme: 'dark', y: { formatter: val => `${val} units` } }
-    };
-    apexChart = new ApexCharts(el, options);
-    apexChart.render();
-  }
+
+
+  // Add this at the very end of ui.js (after attachActionListeners())
+document.addEventListener('mousemove', resetIdleTimer);
+document.addEventListener('keydown', resetIdleTimer);
+document.addEventListener('touchstart', resetIdleTimer);
 
   // ======================
   // INIT
@@ -806,5 +887,7 @@ function whatsappStockReport() {
 
   switchView('dashboard');
   checkBackupReminder();
+  resetIdleTimer();
+  setupKeyboardShortcuts();
   attachActionListeners();
 });
