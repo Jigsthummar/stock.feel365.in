@@ -80,17 +80,6 @@ const DB = {
       .reduce((sum, t) => sum + t.qty, 0);
   },
 
-  getBestSelling() {
-    const sales = {};
-    this.transactions
-      .filter(t => t.type === 'SALE')
-      .forEach(t => {
-        sales[t.product] = (sales[t.product] || 0) + t.qty;
-      });
-    return Object.entries(sales)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
-  },
 
   getTotalSalesForProduct(productName) {
     return this.transactions
