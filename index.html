@@ -93,6 +93,28 @@ user-select: none; /* prevents text selection on tap */
 }
 
 
+
+
+
+/* BLINKING WHATSAPP ICON ON HOVER */
+
+/* Hand cursor on hover (non-clickable) */
+.whatsapp-hint {
+  cursor: pointer;
+  user-select: none; /* prevents text selection */
+}
+.whatsapp-blink {
+  transition: all 0.3s ease;
+}
+#pinError:hover ~ .social-icons .whatsapp-blink {
+  animation: blinkWhatsapp 1.2s infinite;
+}
+@keyframes blinkWhatsapp {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+}
+
+
 /* DASHBOARD WIDGETS */
 .stats-container {
 display: grid;
@@ -681,6 +703,12 @@ style="width: 45px; height: 45px; padding:0; border-radius: 12px; display:flex; 
   </a>
 </nav>
 
+
+<!-- HIDDEN PURPLE ARROW CURSOR -->
+<svg id="purpleCursor" width="24" height="24" viewBox="0 0 24 24" style="display:none;">
+  <path fill="#8b5cf6" d="M12,2L1,21H23M12,6L19.53,19H4.47M11,10V14H13V10M11,16V18H13V16"/>
+</svg>
+
 <!-- IDLE LOCK SCREEN -->
 <div id="lockScreen" class="modal" style="display:none; background:var(--bg);">
   <div style="background:var(--surface); padding:30px; border-radius:24px; width:90%; max-width:350px; text-align:center; position:relative;">
@@ -691,19 +719,20 @@ style="width: 45px; height: 45px; padding:0; border-radius: 12px; display:flex; 
     <input type="password" id="pinInput" placeholder="Enter PIN" maxlength="4" 
            style="width:100%; padding:16px; border-radius:16px; border:1px solid var(--glass-border); background:var(--surface-bright); color:white; font-size:1.5rem; text-align:center; letter-spacing:8px;" />
     <button id="unlockBtn" class="btn btn-primary" style="margin-top:20px; width:100%;">Unlock</button>
-    <p id="pinError" style="color:var(--danger); margin-top:10px; min-height:20px;"></p>
+    <p id="pinError" style="color:var(--danger); margin-top:10px; min-height:20px; line-height:1.4;"></p>
 
     <!-- Social Icons -->
-    <div style="display:flex; justify-content:center; gap:16px; margin-top:20px;">
-      <a href="https://instagram.com/official.jignesh.1" target="_blank" class="btn btn-ghost"
-         style="width:40px; height:40px; padding:0; border-radius:12px; display:flex; align-items:center; justify-content:center; text-decoration:none;">
-        <i class="fab fa-instagram" style="color: #E1306C; font-size: 1.2rem;"></i>
-      </a>
-      <button id="lockWhatsappBtn" class="btn btn-ghost"
-              style="width:40px; height:40px; padding:0; border-radius:12px;">
-        <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.2rem;"></i>
-      </button>
-    </div>
+    <!-- Inside #lockScreen -->
+<div class="social-icons" style="display:flex; justify-content:center; gap:16px; margin-top:20px;">
+  <a href="https://instagram.com/official.jignesh.1" target="_blank" class="btn btn-ghost"
+     style="width:40px; height:40px; padding:0; border-radius:12px; display:flex; align-items:center; justify-content:center; text-decoration:none;">
+    <i class="fab fa-instagram" style="color: #E1306C; font-size: 1.2rem;"></i>
+  </a>
+  <button id="lockWhatsappBtn" class="btn btn-ghost whatsapp-blink"
+        style="width:40px; height:40px; padding:0; border-radius:12px;">
+  <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.2rem;"></i>
+</button>
+</div>
 
     <!-- Footer -->
     <footer class="app-credit" style="margin-top:25px; opacity:1; animation:none;">
@@ -715,6 +744,8 @@ style="width: 45px; height: 45px; padding:0; border-radius: 12px; display:flex; 
     </footer>
   </div>
 </div>
+
+
 
 <div id="deleteModal" class="modal">
 <div class="modal-content">
