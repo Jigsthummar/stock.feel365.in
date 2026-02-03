@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   let idleTimeout;
-const IDLE_TIME = 1 * 60 * 1000; // 5 minutes
+const IDLE_TIME = 2 * 60 * 1000; // 2 minutes
 const PIN = '5544';
 
 // Reset idle timer on user activity
@@ -892,10 +892,6 @@ function whatsappStockReport() {
       alertEl.style.display = (!last || (now - parseInt(last)) > SEVEN_DAYS) ? 'flex' : 'none';
     }
   }
-
-  // ======================
-  // CHART
-  // ======================
 
 
 
