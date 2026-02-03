@@ -349,35 +349,54 @@ deleteBtn.onclick = () => {
   applyStockFilters();
 }
 
+let categoryCollapseTimeout = null;
+
+function toggleCategoryStock() {
+  const list = document.getElementById('categoryStockList');
+  const isExpanded = list.classList.contains('show');
+
+  // Clear existing timeout
+  if (categoryCollapseTimeout) clearTimeout(categoryCollapseTimeout);
+
+  if (isExpanded) {
+    // Collapse immediately
+    list.classList.remove('show');
+  } else {
+    // Expand and auto-collapse after 20s
+    renderCategoryStock();
+    list.classList.add('show');
+    categoryCollapseTimeout = setTimeout(() => {
+      list.classList.remove('show');
+    }, 20000); // 20 seconds
+  }
+}
+
 function renderCategoryStock() {
   const container = document.getElementById('categoryStockList');
   if (!container) return;
 
-  // Calculate total stock per category
   const categoryTotals = {};
   for (const [name, qty] of DB.products.entries()) {
     const category = DB.getCategory(name) || 'Uncategorized';
     categoryTotals[category] = (categoryTotals[category] || 0) + qty;
   }
 
-  // Sort categories by total stock (descending)
-  const sortedCategories = Object.entries(categoryTotals)
-    .sort((a, b) => b[1] - a[1]);
+  const sortedCategories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
 
   if (sortedCategories.length === 0) {
     container.innerHTML = '<p style="color:var(--text-dim); text-align:center; padding:10px;">No products yet</p>';
     return;
   }
 
- let html = '';
-sortedCategories.forEach(([category, total]) => {
-  html += `
-    <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--glass-border);">
-      <span>${category}</span>
-      <span style="background:var(--glass); padding:4px 10px; border-radius:10px; font-weight:600;">${total}</span>
-    </div>
-  `;
-});
+  let html = '';
+  sortedCategories.forEach(([category, total]) => {
+    html += `
+      <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--glass-border);">
+        <span>${category}</span>
+        <span style="background:var(--glass); padding:4px 10px; border-radius:10px; font-weight:600;">${total}</span>
+      </div>
+    `;
+  });
   container.innerHTML = html;
 }
 
@@ -502,20 +521,36 @@ function setupAddProductCategoryInput() {
   // ======================
 
   function switchView(targetView) {
-    document.querySelectorAll('.view').forEach(view => {
-      view.style.display = 'none';
-    });
-
-    const target = document.getElementById(`view-${targetView}`);
-    if (target) target.style.display = 'block';
-
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.classList.toggle('active', item.dataset.view === targetView);
-    });
-
-    if (targetView === 'dashboard') {
-      updateDashboard();
+  // Auto-collapse when LEAVING dashboard
+  if (document.querySelector('#view-dashboard[style*="display: block"]')) {
+    const list = document.getElementById('categoryStockList');
+    if (list && list.classList.contains('show')) {
+      list.classList.remove('show');
+      if (categoryCollapseTimeout) clearTimeout(categoryCollapseTimeout);
     }
+  }
+
+  document.querySelectorAll('.view').forEach(view => {
+    view.style.display = 'none';
+  });
+
+  const target = document.getElementById(`view-${targetView}`);
+  if (target) target.style.display = 'block';
+
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.view === targetView);
+  });
+
+  if (targetView === 'dashboard') {
+    // Auto-collapse when ENTERING dashboard
+    const list = document.getElementById('categoryStockList');
+    if (list && list.classList.contains('show')) {
+      list.classList.remove('show');
+      if (categoryCollapseTimeout) clearTimeout(categoryCollapseTimeout);
+    }
+    updateDashboard();
+  }
+
     else if (targetView === 'stock') {
       renderStockTable();
     }
@@ -653,6 +688,7 @@ document.getElementById('saveProductBtn')?.addEventListener('click', () => {
     document.getElementById('flip-add-product')?.addEventListener('click', () => switchView('add-product'));
     document.querySelector('.logo')?.addEventListener('click', () => switchView('dashboard'));
     document.getElementById('saveEditProductBtn')?.addEventListener('click', saveEditedProduct);
+    document.getElementById('categoryStockToggle')?.addEventListener('click', toggleCategoryStock);
 
     // Add Stock
     document.getElementById('saveAddStockBtn')?.addEventListener('click', () => {
@@ -755,8 +791,8 @@ document.getElementById('saveProductBtn')?.addEventListener('click', () => {
   // MODAL & UTILS
   // ======================
 
-  document.getElementById('confirmDeleteBtn')?.addEventListener('click', () => {
-  const productName = window.currentDeleteProduct; // 👈 Use global
+ document.getElementById('confirmDeleteBtn')?.addEventListener('click', () => {
+  const productName = window.currentDeleteProduct;
   if (productName && DB.products.has(productName)) {
     DB.products.delete(productName);
     DB.productCategories.delete(productName);
@@ -767,7 +803,7 @@ document.getElementById('saveProductBtn')?.addEventListener('click', () => {
     updateDashboard();
   }
   document.getElementById('deleteModal').style.display = 'none';
-  window.currentDeleteProduct = null; // 👈 Clean up
+  window.currentDeleteProduct = null;
 });
 
   document.querySelectorAll('.nav-item').forEach(item => {
