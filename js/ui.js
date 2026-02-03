@@ -221,6 +221,7 @@ function saveEditedProduct() {
   function updateDashboard() {
     document.getElementById('totalProducts').textContent = DB.products.size;
     document.getElementById('todaySales').textContent = DB.getTodaySales();
+    renderCategoryStock();
 
   }
 
@@ -346,6 +347,38 @@ deleteBtn.onclick = () => {
 
   container.appendChild(fragment);
   applyStockFilters();
+}
+
+function renderCategoryStock() {
+  const container = document.getElementById('categoryStockList');
+  if (!container) return;
+
+  // Calculate total stock per category
+  const categoryTotals = {};
+  for (const [name, qty] of DB.products.entries()) {
+    const category = DB.getCategory(name) || 'Uncategorized';
+    categoryTotals[category] = (categoryTotals[category] || 0) + qty;
+  }
+
+  // Sort categories by total stock (descending)
+  const sortedCategories = Object.entries(categoryTotals)
+    .sort((a, b) => b[1] - a[1]);
+
+  if (sortedCategories.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-dim); text-align:center; padding:10px;">No products yet</p>';
+    return;
+  }
+
+ let html = '';
+sortedCategories.forEach(([category, total]) => {
+  html += `
+    <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--glass-border);">
+      <span>${category}</span>
+      <span style="background:var(--glass); padding:4px 10px; border-radius:10px; font-weight:600;">${total}</span>
+    </div>
+  `;
+});
+  container.innerHTML = html;
 }
 
   function renderLedger(filterDate = null) {
