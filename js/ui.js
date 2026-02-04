@@ -15,15 +15,14 @@ function resetIdleTimer() {
 
 // Lock the app
 function lockApp() {
-  localStorage.setItem('appLocked', 'true'); // 
+  localStorage.setItem('appLocked', 'true');
   document.getElementById('lockScreen').style.display = 'flex';
-  document.body.style.overflow = 'hidden';
+  document.body.classList.add('lock-screen-active'); // 👈 ADD THIS
   document.getElementById('pinInput').value = '';
   document.getElementById('pinError').textContent = '';
   document.getElementById('pinInput').focus();
 }
 
-// Unlock the app
 function unlockApp() {
   const pin = document.getElementById('pinInput').value;
   const errorEl = document.getElementById('pinError');
@@ -31,20 +30,17 @@ function unlockApp() {
   if (pin === PIN) {
     localStorage.removeItem('appLocked');
     document.getElementById('lockScreen').style.display = 'none';
-    document.body.style.overflow = '';
+    document.body.classList.remove('lock-screen-active'); // 👈 ADD THIS
     resetIdleTimer();
   } else {
-    // Two-line plain text error (no HTML, no links)
     errorEl.innerHTML = `
-  <span style="color: var(--danger);">❌ Incorrect password.</span><br>
-  <span class="whatsapp-hint" style="color: var(--success);">Click below WhatsApp button.</span>
-`;
-    
+      <span style="color: var(--danger);">❌ Incorrect password.</span><br>
+      <span class="whatsapp-hint" style="color: var(--success);">Click below WhatsApp button.</span>
+    `;
     document.getElementById('pinInput').value = '';
     document.getElementById('pinInput').focus();
   }
 }
-
 
 
   // Safe Hard Refresh (clears SW + cache, keeps localStorage)
@@ -604,11 +600,16 @@ function setupKeyboardShortcuts() {
       case 'home': 
         switchView('dashboard'); 
         break; // Alt+Home → Dashboard
+
+        case 'l': 
+        lockApp(); 
+        break; // Alt+L → Lock Screen
     }
   });
 }
 
-  
+
+
 
   // ======================
   // UTILITIES
@@ -786,6 +787,56 @@ document.getElementById('saveProductBtn')?.addEventListener('click', () => {
     });
     document.getElementById('stockSearch')?.addEventListener('input', applyStockFilters);
   }
+
+  // Submit forms on Enter — only if valid
+document.getElementById('addStockQty')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    const product = document.getElementById('addStockProduct')?.value;
+    const qty = document.getElementById('addStockQty')?.value;
+    if (product && parseInt(qty) > 0) {
+      document.getElementById('saveAddStockBtn').click();
+    }
+  }
+});
+
+document.getElementById('returnQty')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    const product = document.getElementById('returnProduct')?.value;
+    const qty = document.getElementById('returnQty')?.value;
+    if (product && parseInt(qty) > 0) {
+      document.getElementById('saveReturnBtn').click();
+    }
+  }
+});
+
+document.getElementById('damageQty')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    const product = document.getElementById('damageProduct')?.value;
+    const qty = document.getElementById('damageQty')?.value;
+    if (product && parseInt(qty) > 0) {
+      document.getElementById('saveDamageBtn').click();
+    }
+  }
+});
+
+document.getElementById('sellQty')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    const product = document.getElementById('sellProduct')?.value;
+    const qty = document.getElementById('sellQty')?.value;
+    if (product && parseInt(qty) > 0) {
+      document.getElementById('saveSellBtn').click();
+    }
+  }
+});
+
+document.getElementById('newProductName')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    const name = document.getElementById('newProductName')?.value.trim();
+    if (name) {
+      document.getElementById('saveProductBtn').click();
+    }
+  }
+});
 
   // ======================
   // MODAL & UTILS
