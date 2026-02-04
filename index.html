@@ -529,6 +529,19 @@ padding-bottom: 120px;
   max-height: 300px; /* Adjust based on expected content height */
 }
 
+/* Disable background when lock screen is active */
+body.lock-screen-active {
+  overflow: hidden;
+}
+body.lock-screen-active > *:not(#lockScreen) {
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+#lockScreen {
+  visibility: visible !important;
+  z-index: 3000;
+}
+
 </style>
 
 </head>
